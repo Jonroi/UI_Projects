@@ -1,0 +1,40 @@
+{
+  "name": "spring-mass-simulation",
+  "version": "1.0.0",
+  "description": "A professional, modular spring-mass physics simulation with real-time energy visualization",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "serve": "node server.js"
+  },
+  "keywords": [
+    "physics",
+    "simulation",
+    "spring-mass",
+    "canvas",
+    "education",
+    "mechanics"
+  ],
+  "author": "Spring-Mass Simulator Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/spring-mass-simulation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/spring-mass-simulation/issues"
+  },
+  "homepage": "https://github.com/your-username/spring-mass-simulation#readme"
+}

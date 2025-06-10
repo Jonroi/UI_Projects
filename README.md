@@ -1,4 +1,4 @@
-# UI Projects Portfolio
+# UI Projects
 
 A collection of modern, interactive web applications built with cutting-edge technologies. This repository showcases various UI/UX implementations and interactive tools.
 

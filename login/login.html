@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Modern Page Setup -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enterprise Portal - Secure Access</title>
+
+    <!-- CDN Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <!-- Modern Glassmorphism Styles -->
+    <style>
+      :root {
+        --glass-bg: rgba(255, 255, 255, 0.25);
+        --glass-border: rgba(255, 255, 255, 0.18);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        --glass-backdrop: blur(20px);
+        --emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --surface-1: rgba(255, 255, 255, 0.8);
+        --surface-2: rgba(255, 255, 255, 0.6);
+        --surface-3: rgba(255, 255, 255, 0.4);
+      }
+
+      * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="20" cy="80" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .glass-morphism {
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-backdrop);
+        -webkit-backdrop-filter: var(--glass-backdrop);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-morphism:hover {
+        background: rgba(255, 255, 255, 0.35);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+      }
+
+      .glass-card {
+        background: var(--surface-1);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .modern-input {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .modern-input:focus {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15),
+          0 4px 20px rgba(16, 185, 129, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .modern-button {
+        background: var(--emerald-gradient);
+        backdrop-filter: blur(10px);
+        border: none;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .modern-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .modern-button:hover::before {
+        left: 100%;
+      }
+
+      .modern-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .floating-label {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: left top;
+      }
+
+      .floating-label.active {
+        transform: translateY(-1.5rem) scale(0.85);
+        color: #10b981;
+        font-weight: 600;
+      }
+
+      .social-button {
+        background: var(--surface-2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .social-button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.3) 0%,
+          transparent 70%
+        );
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translate(-50%, -50%);
+      }
+
+      .social-button:hover::before {
+        width: 200px;
+        height: 200px;
+      }
+
+      .social-button:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .error-shake {
+        animation: shake 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .scale-in {
+        animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .modal-backdrop {
+        backdrop-filter: blur(20px);
+        background: rgba(0, 0, 0, 0.4);
+      }
+
+      .loading-skeleton {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.1) 25%,
+          rgba(255, 255, 255, 0.3) 50%,
+          rgba(255, 255, 255, 0.1) 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+      }
+
+      @keyframes skeleton-loading {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .otp-input {
+        background: var(--surface-1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .otp-input:focus {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    </style>
+  </head>
+
+  <!-- Modern Page Body -->
+  <body
+    class="min-h-screen flex items-center justify-center antialiased relative z-10">
+    <!-- Accessibility skip link -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-emerald-600 text-white px-4 py-2 rounded-lg z-50 modern-button"
+      >Skip to main content</a
+    >
+
+    <!-- Main Container -->
+    <div
+      class="w-full max-w-sm mx-auto px-4 py-6 fade-in"
+      role="main"
+      id="main-content">
+      <!-- Logo and Title -->
+      <header class="text-center mb-8">
+        <div class="w-24 h-24 mx-auto mb-6 group">
+          <div
+            class="glass-morphism rounded-3xl w-full h-full flex items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-600/30"></div>
+            <i
+              class="fas fa-building text-white text-5xl drop-shadow-lg relative z-10 group-hover:scale-110 transition-transform duration-300"
+              aria-hidden="true"></i>
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </div>
+        </div>
+        <h1
+          class="text-3xl font-bold text-white tracking-tight mb-2 drop-shadow-lg"
+          id="page-title">
+          Welcome Back
+        </h1>
+        <p
+          class="text-white/80 mt-2 text-base font-medium drop-shadow-sm"
+          id="page-description">
+          Access your enterprise dashboard
+        </p>
+      </header>
+
+      <!-- Modern Login Form -->
+      <main
+        class="glass-card rounded-3xl p-8 relative overflow-hidden scale-in">
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 rounded-3xl pointer-events-none"></div>
+        <div
+          class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-green-500 rounded-t-3xl"></div>
+
+        <div class="relative z-10">
+          <form
+            id="loginForm"
+            class="space-y-5"
+            role="form"
+            aria-labelledby="page-title"
+            aria-describedby="page-description">
+            <!-- Email Field -->
+            <div class="relative input-group mb-6">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                autocomplete="email"
+                aria-describedby="email-error"
+                aria-required="true"
+                class="modern-input w-full px-6 py-4 rounded-2xl outline-none text-slate-800 font-medium text-base peer placeholder-transparent"
+                placeholder="Email address"
+                required />
+              <label
+                for="email"
+                class="floating-label absolute left-6 top-4 text-slate-600 pointer-events-none font-medium"
+                >Email address</label
+              >
+              <div
+                class="error-message hidden text-red-400 text-sm mt-3 font-medium opacity-0 transition-all duration-300 bg-red-50/80 backdrop-blur-sm rounded-lg px-3 py-2"
+                id="email-error"
+                role="alert"
+                aria-live="polite"></div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="relative input-group mb-6">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                aria-describedby="password-error"
+                aria-required="true"
+                class="modern-input w-full px-6 py-4 pr-14 rounded-2xl outline-none text-slate-800 font-medium text-base peer placeholder-transparent"
+                placeholder="Password"
+                required />
+              <label
+                for="password"
+                class="floating-label absolute left-6 top-4 text-slate-600 pointer-events-none font-medium"
+                >Password</label
+              >
+              <button
+                type="button"
+                id="togglePassword"
+                aria-label="Toggle password visibility"
+                aria-pressed="false"
+                aria-describedby="password"
+                class="absolute right-4 top-4 text-slate-500 hover:text-emerald-600 transition-all duration-300 p-2 hover:bg-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/30 group">
+                <i
+                  id="eyeOpen"
+                  class="fas fa-eye text-lg group-hover:scale-110 transition-transform duration-200"
+                  aria-hidden="true"></i>
+                <i
+                  id="eyeClosed"
+                  class="fas fa-eye-slash text-lg hidden group-hover:scale-110 transition-transform duration-200"
+                  aria-hidden="true"></i>
+              </button>
+              <div
+                class="error-message hidden text-red-400 text-sm mt-3 font-medium opacity-0 transition-all duration-300 bg-red-50/80 backdrop-blur-sm rounded-lg px-3 py-2"
+                id="password-error"
+                role="alert"
+                aria-live="polite"></div>
+            </div>
+
+            <!-- Remember Me and Forgot Password -->
+            <div class="flex items-center justify-between mb-8">
+              <label class="flex items-center cursor-pointer group">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  class="w-5 h-5 text-emerald-600 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:ring-2 focus:ring-offset-2 focus:outline-none transition-all duration-300 bg-white/80" />
+                <span
+                  class="ml-3 text-sm text-slate-700 font-medium group-hover:text-slate-900 transition-colors"
+                  >Remember me</span
+                >
+              </label>
+              <button
+                type="button"
+                id="forgotPassword"
+                class="text-sm text-emerald-600 hover:text-emerald-700 font-semibold transition-all duration-300 py-2 px-4 rounded-xl hover:bg-emerald-50/80 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 backdrop-blur-sm">
+                Forgot password?
+              </button>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="modern-button w-full text-white py-4 rounded-2xl font-semibold text-base relative z-10 mb-8">
+              <span class="relative z-10">Sign In</span>
+            </button>
+          </form>
+
+          <!-- Social Login Divider -->
+          <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-white/20"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span
+                class="px-6 bg-white/10 backdrop-blur-sm text-slate-700 font-medium rounded-full py-2"
+                >Or continue with</span
+              >
+            </div>
+          </div>
+
+          <!-- Social Login Buttons -->
+          <div class="flex justify-center space-x-6 mb-6">
+            <button
+              aria-label="Sign in with Social Provider A"
+              class="social-button w-16 h-16 rounded-2xl flex items-center justify-center group focus:outline-none focus:ring-4 focus:ring-blue-500/30">
+              <i
+                class="fas fa-users text-slate-700 text-2xl transition-all duration-300 relative z-10"
+                aria-hidden="true"></i>
+            </button>
+            <button
+              aria-label="Sign in with Social Provider B"
+              class="social-button w-16 h-16 rounded-2xl flex items-center justify-center group focus:outline-none focus:ring-4 focus:ring-emerald-500/30">
+              <i
+                class="fas fa-shield-alt text-slate-700 text-2xl transition-all duration-300 relative z-10"
+                aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <!-- Sign Up Link -->
+      <footer class="text-center mt-8 text-white/90 text-base font-medium">
+        Don't have an account?
+        <button
+          id="showSignUp"
+          class="text-white font-bold transition-all duration-300 py-3 px-6 rounded-2xl hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 backdrop-blur-sm ml-2 border border-white/20 hover:border-white/40">
+          Sign up
+        </button>
+      </footer>
+    </div>
+
+    <!-- OTP Modal -->
+    <div
+      id="otpModal"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-3 z-50 opacity-0 transition-all duration-300"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="otp-title"
+      aria-describedby="otp-description">
+      <div
+        class="bg-white/95 backdrop-blur-xl rounded-3xl p-5 w-full max-w-sm mx-auto shadow-2xl border border-white/50 relative overflow-hidden">
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-white/60 to-white/30 rounded-3xl"></div>
+
+        <div class="relative z-10">
+          <div class="text-center mb-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-2" id="otp-title">
+              Enter Verification Code
+            </h2>
+            <p class="text-slate-600 text-sm font-medium" id="otp-description">
+              We've sent a 6-digit code to your email
+            </p>
+          </div>
+
+          <div
+            class="grid grid-cols-6 gap-3 mb-6"
+            role="group"
+            aria-labelledby="otp-title">
+            <input
+              type="text"
+              maxlength="1"
+              aria-label="First digit"
+              autocomplete="one-time-code"
+              class="otp-input aspect-square border-2 border-slate-200 rounded-lg text-center text-lg font-bold text-slate-900 bg-slate-50/80 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/40 focus:shadow-lg transition-all duration-300" />
+            <input
+              type="text"
+              maxlength="1"
+              aria-label="Second digit"
+              autocomplete="one-time-code"
+              class="otp-input aspect-square border-2 border-slate-200 rounded-lg text-center text-lg font-bold text-slate-900 bg-slate-50/80 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/40 focus:shadow-lg transition-all duration-300" />
+            <input
+              type="text"
+              maxlength="1"
+              aria-label="Third digit"
+              autocomplete="one-time-code"
+              class="otp-input aspect-square border-2 border-slate-200 rounded-lg text-center text-lg font-bold text-slate-900 bg-slate-50/80 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/40 focus:shadow-lg transition-all duration-300" />
+            <input
+              type="text"
+              maxlength="1"
+              aria-label="Fourth digit"
+              autocomplete="one-time-code"
+              class="otp-input aspect-square border-2 border-slate-200 rounded-lg text-center text-lg font-bold text-slate-900 bg-slate-50/80 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/40 focus:shadow-lg transition-all duration-300" />
+            <input
+              type="text"
+              maxlength="1"
+              aria-label="Fifth digit"
+              autocomplete="one-time-code"
+              class="otp-input aspect-square border-2 border-slate-200 rounded-lg text-center text-lg font-bold text-slate-900 bg-slate-50/80 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/40 focus:shadow-lg transition-all duration-300" />
+            <input
+              type="text"
+              maxlength="1"
+              aria-label="Sixth digit"
+              autocomplete="one-time-code"
+              class="otp-input aspect-square border-2 border-slate-200 rounded-lg text-center text-lg font-bold text-slate-900 bg-slate-50/80 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/40 focus:shadow-lg transition-all duration-300" />
+          </div>
+
+          <button
+            id="verifyOtp"
+            class="w-full bg-gradient-to-r from-emerald-600 to-green-600 text-white py-4 rounded-xl font-semibold text-base shadow-lg shadow-emerald-500/30 hover:from-emerald-700 hover:to-green-700 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 focus:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 mb-4">
+            Verify Code
+          </button>
+
+          <div class="text-center">
+            <button
+              id="resendCode"
+              class="text-sm text-slate-600 hover:text-slate-700 font-medium transition-all duration-200 py-2 px-3 rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-slate-100">
+              Didn't receive code?
+              <span class="text-emerald-600 font-semibold">Resend</span>
+            </button>
+          </div>
+
+          <button
+            id="closeModal"
+            aria-label="Close verification code dialog"
+            class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-slate-100">
+            <i class="fas fa-times text-xl" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div
+      id="signUpModal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 modal-backdrop z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="signup-title"
+      aria-describedby="signup-description">
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full modal-content mx-4">
+        <header class="mb-6">
+          <h2
+            class="text-xl font-semibold text-gray-900 mb-2"
+            id="signup-title">
+            Create Account
+          </h2>
+          <p class="text-gray-600 text-base" id="signup-description">
+            Join us today! Create your corporate account
+          </p>
+        </header>
+
+        <form id="signUpForm" class="space-y-5">
+          <div class="relative input-group">
+            <input
+              type="text"
+              id="signUpFullName"
+              class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg outline-none text-gray-900 peer text-base"
+              required />
+            <label
+              for="signUpFullName"
+              class="floating-label absolute left-4 top-3 text-gray-500 pointer-events-none origin-left text-base transition-all duration-300"
+              >Full Name</label
+            >
+            <div
+              class="error-message hidden text-red-500 text-sm mt-1 opacity-0 transition-all duration-300"></div>
+          </div>
+
+          <div class="relative input-group">
+            <input
+              type="email"
+              id="signUpEmail"
+              class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg outline-none text-gray-900 peer text-base"
+              required />
+            <label
+              for="signUpEmail"
+              class="floating-label absolute left-4 top-3 text-gray-500 pointer-events-none origin-left text-base transition-all duration-300"
+              >Email address</label
+            >
+            <div
+              class="error-message hidden text-red-500 text-sm mt-1 opacity-0 transition-all duration-300"></div>
+          </div>
+
+          <div class="relative input-group">
+            <input
+              type="password"
+              id="signUpPassword"
+              class="input-field w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg outline-none text-gray-900 peer text-base"
+              required />
+            <label
+              for="signUpPassword"
+              class="floating-label absolute left-4 top-3 text-gray-500 pointer-events-none origin-left text-base transition-all duration-300"
+              >Password</label
+            >
+            <button
+              type="button"
+              id="toggleSignUpPassword"
+              class="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700 transition-colors p-1">
+              <i
+                id="signUpEyeOpen"
+                class="fas fa-eye text-lg"
+                aria-hidden="true"></i>
+              <i
+                id="signUpEyeClosed"
+                class="fas fa-eye-slash text-lg hidden"
+                aria-hidden="true"></i>
+            </button>
+            <div
+              class="error-message hidden text-red-500 text-sm mt-1 opacity-0 transition-all duration-300"></div>
+          </div>
+
+          <div class="relative input-group">
+            <input
+              type="password"
+              id="signUpConfirmPassword"
+              class="input-field w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg outline-none text-gray-900 peer text-base"
+              required />
+            <label
+              for="signUpConfirmPassword"
+              class="floating-label absolute left-4 top-3 text-gray-500 pointer-events-none origin-left text-base transition-all duration-300"
+              >Confirm Password</label
+            >
+            <button
+              type="button"
+              id="toggleSignUpConfirmPassword"
+              class="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700 transition-colors p-1">
+              <i
+                id="signUpConfirmEyeOpen"
+                class="fas fa-eye text-lg"
+                aria-hidden="true"></i>
+              <i
+                id="signUpConfirmEyeClosed"
+                class="fas fa-eye-slash text-lg hidden"
+                aria-hidden="true"></i>
+            </button>
+            <div
+              class="error-message hidden text-red-500 text-sm mt-1 opacity-0 transition-all duration-300"></div>
+          </div>
+
+          <div class="flex items-start">
+            <input
+              type="checkbox"
+              id="agreeTerms"
+              class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 mt-0.5"
+              required />
+            <label for="agreeTerms" class="ml-2 text-sm text-gray-600">
+              I agree to the
+              <a href="#" class="text-emerald-600 hover:text-emerald-700"
+                >Terms of Service</a
+              >
+              and
+              <a href="#" class="text-emerald-600 hover:text-emerald-700"
+                >Privacy Policy</a
+              >
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-emerald-600 to-green-600 text-white py-4 rounded-xl font-semibold text-base shadow-lg shadow-emerald-500/30 hover:from-emerald-700 hover:to-green-700 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/30 transform hover:-translate-y-0.5 active:translate-y-0">
+            Create Account
+          </button>
+        </form>
+
+        <footer class="text-center mt-6 text-gray-600 text-sm">
+          Already have an account?
+          <button
+            id="showLogin"
+            class="text-emerald-600 hover:text-emerald-700 font-semibold transition-all duration-200 py-2 px-3 rounded-lg hover:bg-emerald-50">
+            Sign in
+          </button>
+        </footer>
+
+        <button
+          id="closeSignUpModal"
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 -m-2">
+          <i class="fas fa-times text-xl" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modern Modular JavaScript -->
+    <script type="module">
+      // ==========================================
+      // Configuration & Constants
+      // ==========================================
+      const CONFIG = {
+        MAX_LOGIN_ATTEMPTS: 5,
+        LOCKOUT_MINUTES: 15,
+        OTP_LENGTH: 6,
+        OTP_EXPIRY_MINUTES: 5,
+        ANIMATION_DURATION: 300,
+        RESEND_COOLDOWN: 60000,
+        MAX_RESENDS: 3,
+      };
+
+      // ==========================================
+      // Storage Manager Class
+      // ==========================================
+      class StorageManager {
+        static getItem(key, defaultValue = null) {
+          try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : defaultValue;
+          } catch (error) {
+            console.warn('Storage read failed:', error);
+            return defaultValue;
+          }
+        }
+
+        static setItem(key, value) {
+          try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+          } catch (error) {
+            console.warn('Storage write failed:', error);
+            return false;
+          }
+        }
+
+        static removeItem(key) {
+          try {
+            localStorage.removeItem(key);
+            return true;
+          } catch (error) {
+            console.warn('Storage remove failed:', error);
+            return false;
+          }
+        }
+
+        static clear() {
+          try {
+            localStorage.clear();
+            return true;
+          } catch (error) {
+            console.warn('Storage clear failed:', error);
+            return false;
+          }
+        }
+      }
+
+      // ==========================================
+      // Toast Manager Class
+      // ==========================================
+      class ToastManager {
+        static show(message, type = 'info', duration = 3000) {
+          const config = {
+            text: message,
+            duration: duration,
+            close: true,
+            gravity: 'top',
+            position: 'right',
+            stopOnFocus: true,
+            className: `toast-${type}`,
+            style: {},
+          };
+
+          switch (type) {
+            case 'success':
+              config.style.background =
+                'linear-gradient(135deg, #10b981, #059669)';
+              config.duration = 4000;
+              break;
+            case 'error':
+              config.style.background =
+                'linear-gradient(135deg, #ef4444, #dc2626)';
+              config.duration = 5000;
+              break;
+            case 'warning':
+              config.style.background =
+                'linear-gradient(135deg, #f59e0b, #d97706)';
+              config.duration = 4000;
+              break;
+            case 'info':
+            default:
+              config.style.background =
+                'linear-gradient(135deg, #3b82f6, #2563eb)';
+              config.duration = 3000;
+              break;
+          }
+
+          Toastify(config).showToast();
+        }
+
+        static success(message) {
+          this.show(message, 'success');
+        }
+
+        static error(message) {
+          this.show(message, 'error');
+        }
+
+        static warning(message) {
+          this.show(message, 'warning');
+        }
+
+        static info(message) {
+          this.show(message, 'info');
+        }
+      }
+
+      // ==========================================
+      // Validation Manager Class
+      // ==========================================
+      class ValidationManager {
+        static isValidEmail(email) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return emailRegex.test(email);
+        }
+
+        static isStrongPassword(password) {
+          return (
+            password.length >= 8 &&
+            /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)
+          );
+        }
+
+        static validateForm(formData) {
+          const errors = {};
+
+          if (formData.email && !this.isValidEmail(formData.email)) {
+            errors.email = 'Please enter a valid email address';
+          }
+
+          if (formData.password && formData.password.length < 6) {
+            errors.password = 'Password must be at least 6 characters';
+          }
+
+          if (
+            formData.strongPassword &&
+            !this.isStrongPassword(formData.strongPassword)
+          ) {
+            errors.strongPassword =
+              'Password must be at least 8 characters with uppercase, lowercase, and number';
+          }
+
+          if (
+            formData.confirmPassword &&
+            formData.password !== formData.confirmPassword
+          ) {
+            errors.confirmPassword = 'Passwords do not match';
+          }
+
+          if (formData.fullName && formData.fullName.length < 2) {
+            errors.fullName =
+              'Please enter your full name (at least 2 characters)';
+          }
+
+          return {
+            isValid: Object.keys(errors).length === 0,
+            errors,
+          };
+        }
+      }
+
+      // ==========================================
+      // UI Manager Class
+      // ==========================================
+      class UIManager {
+        constructor() {
+          this.focusTraps = new Map();
+          this.init();
+        }
+
+        init() {
+          this.setupFloatingLabels();
+          this.setupAnimations();
+          this.preventDoubleTabZoom();
+        }
+
+        setupFloatingLabels() {
+          document.querySelectorAll('.input-group').forEach((group) => {
+            const input = group.querySelector('input');
+            const label = group.querySelector('.floating-label');
+
+            if (!input || !label) return;
+
+            // Handle initial state
+            this.updateFloatingLabel(input, label);
+
+            // Event listeners
+            input.addEventListener('focus', () =>
+              this.handleInputFocus(input, label),
+            );
+            input.addEventListener('blur', () =>
+              this.handleInputBlur(input, label),
+            );
+            input.addEventListener('input', () =>
+              this.handleInputChange(input, label),
+            );
+          });
+        }
+
+        updateFloatingLabel(input, label) {
+          if (input.value.length > 0) {
+            label.classList.add('active');
+            label.style.transform = 'translateY(-1.5rem) scale(0.85)';
+            label.style.color = '#10b981';
+          } else {
+            label.classList.remove('active');
+            label.style.transform = 'translateY(0) scale(1)';
+            label.style.color = '#64748b';
+          }
+        }
+
+        handleInputFocus(input, label) {
+          label.classList.add('active');
+          label.style.transform = 'translateY(-1.5rem) scale(0.85)';
+          label.style.color = '#10b981';
+          label.style.fontWeight = '600';
+        }
+
+        handleInputBlur(input, label) {
+          if (input.value.length === 0) {
+            label.classList.remove('active');
+            label.style.transform = 'translateY(0) scale(1)';
+            label.style.color = '#64748b';
+            label.style.fontWeight = '500';
+          }
+        }
+
+        handleInputChange(input, label) {
+          this.updateFloatingLabel(input, label);
+        }
+
+        showError(input, message) {
+          const group = input.closest('.input-group');
+          const errorDiv = group.querySelector('.error-message');
+
+          if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden', 'opacity-0');
+            errorDiv.classList.add('opacity-100');
+
+            // Add shake animation
+            input.classList.add('error-shake');
+            setTimeout(() => input.classList.remove('error-shake'), 500);
+          }
+        }
+
+        clearAllErrors() {
+          document.querySelectorAll('.error-message').forEach((msg) => {
+            msg.classList.add('hidden', 'opacity-0');
+            msg.classList.remove('opacity-100');
+            msg.textContent = '';
+          });
+
+          document.querySelectorAll('.error-shake').forEach((el) => {
+            el.classList.remove('error-shake');
+          });
+        }
+
+        setButtonLoading(button, isLoading, loadingText = 'Loading...') {
+          if (isLoading) {
+            button.dataset.originalContent = button.innerHTML;
+            button.innerHTML = `
+              <div class="flex items-center justify-center">
+                <div class="loading-skeleton w-6 h-6 rounded-full mr-2"></div>
+                <span>${loadingText}</span>
+              </div>
+            `;
+            button.disabled = true;
+            button.classList.add('opacity-75', 'cursor-not-allowed');
+          } else {
+            button.innerHTML =
+              button.dataset.originalContent || button.innerHTML;
+            button.disabled = false;
+            button.classList.remove('opacity-75', 'cursor-not-allowed');
+          }
+        }
+
+        togglePassword(passwordId, eyeOpenId, eyeClosedId) {
+          const passwordInput = document.getElementById(passwordId);
+          const eyeOpen = document.getElementById(eyeOpenId);
+          const eyeClosed = document.getElementById(eyeClosedId);
+          const toggleButton = eyeOpen.closest('button');
+
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeOpen.classList.add('hidden');
+            eyeClosed.classList.remove('hidden');
+            toggleButton.setAttribute('aria-pressed', 'true');
+            toggleButton.setAttribute('aria-label', 'Hide password');
+          } else {
+            passwordInput.type = 'password';
+            eyeOpen.classList.remove('hidden');
+            eyeClosed.classList.add('hidden');
+            toggleButton.setAttribute('aria-pressed', 'false');
+            toggleButton.setAttribute('aria-label', 'Show password');
+          }
+        }
+
+        setupAnimations() {
+          // Add staggered animations to form elements
+          const formElements = document.querySelectorAll(
+            '.input-group, .modern-button, .social-button',
+          );
+          formElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 100}ms`;
+            element.classList.add('fade-in');
+          });
+        }
+
+        preventDoubleTabZoom() {
+          let lastTouchEnd = 0;
+          document.addEventListener(
+            'touchend',
+            (event) => {
+              const now = Date.now();
+              if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+              }
+              lastTouchEnd = now;
+            },
+            false,
+          );
+        }
+
+        // Focus trap methods
+        trapFocus(element) {
+          const focusableElements = element.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+          );
+          const firstFocusable = focusableElements[0];
+          const lastFocusable = focusableElements[focusableElements.length - 1];
+
+          const handleTabKey = (e) => {
+            if (e.key !== 'Tab') return;
+
+            if (e.shiftKey) {
+              if (document.activeElement === firstFocusable) {
+                lastFocusable.focus();
+                e.preventDefault();
+              }
+            } else {
+              if (document.activeElement === lastFocusable) {
+                firstFocusable.focus();
+                e.preventDefault();
+              }
+            }
+          };
+
+          const handleEscapeKey = (e) => {
+            if (e.key === 'Escape') {
+              ModalManager.hide(element.id);
+            }
+          };
+
+          element.addEventListener('keydown', handleTabKey);
+          element.addEventListener('keydown', handleEscapeKey);
+          this.focusTraps.set(element, { handleTabKey, handleEscapeKey });
+        }
+
+        removeFocusTrap(element) {
+          const handlers = this.focusTraps.get(element);
+          if (handlers) {
+            element.removeEventListener('keydown', handlers.handleTabKey);
+            element.removeEventListener('keydown', handlers.handleEscapeKey);
+            this.focusTraps.delete(element);
+          }
+        }
+      }
+
+      // Toast Functions
+      function showSuccessToast(message) {
+        Toastify({
+          text: message,
+          duration: 4000,
+          close: true,
+          gravity: 'top',
+          position: 'right',
+          backgroundColor: 'linear-gradient(to right, #10b981, #059669)',
+          stopOnFocus: true,
+        }).showToast();
+      }
+
+      function showErrorToast(message) {
+        Toastify({
+          text: message,
+          duration: 5000,
+          close: true,
+          gravity: 'top',
+          position: 'right',
+          backgroundColor: 'linear-gradient(to right, #ef4444, #dc2626)',
+          stopOnFocus: true,
+        }).showToast();
+      }
+
+      function showWarningToast(message) {
+        Toastify({
+          text: message,
+          duration: 4000,
+          close: true,
+          gravity: 'top',
+          position: 'right',
+          backgroundColor: 'linear-gradient(to right, #f59e0b, #d97706)',
+          stopOnFocus: true,
+        }).showToast();
+      }
+
+      function showInfoToast(message) {
+        Toastify({
+          text: message,
+          duration: 3000,
+          close: true,
+          gravity: 'top',
+          position: 'right',
+          backgroundColor: 'linear-gradient(to right, #3b82f6, #2563eb)',
+          stopOnFocus: true,
+        }).showToast();
+      }
+
+      // Focus Management
+      const focusTraps = new Map();
+
+      function trapFocus(element) {
+        const focusableElements = element.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        function handleTabKey(e) {
+          if (e.key !== 'Tab') return;
+
+          if (e.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+              lastFocusable.focus();
+              e.preventDefault();
+            }
+          } else {
+            if (document.activeElement === lastFocusable) {
+              firstFocusable.focus();
+              e.preventDefault();
+            }
+          }
+        }
+
+        function handleEscapeKey(e) {
+          if (e.key === 'Escape') {
+            const modalId = element.id;
+            hideModal(modalId);
+          }
+        }
+
+        element.addEventListener('keydown', handleTabKey);
+        element.addEventListener('keydown', handleEscapeKey);
+        focusTraps.set(element, { handleTabKey, handleEscapeKey });
+      }
+
+      function removeFocusTrap(element) {
+        const handlers = focusTraps.get(element);
+        if (handlers) {
+          element.removeEventListener('keydown', handlers.handleTabKey);
+          element.removeEventListener('keydown', handlers.handleEscapeKey);
+          focusTraps.delete(element);
+        }
+      }
+
+      // Helper Functions
+      function generateId() {
+        return Math.random().toString(36).substr(2, 9);
+      }
+
+      function generateOTP() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+      }
+
+      function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
+
+      function isStrongPassword(password) {
+        return (
+          password.length >= 8 &&
+          /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)
+        );
+      }
+
+      function getFromStorage(key, defaultValue = null) {
+        try {
+          const item = localStorage.getItem(key);
+          return item ? JSON.parse(item) : defaultValue;
+        } catch {
+          return defaultValue;
+        }
+      }
+
+      function saveToStorage(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+          console.warn('Storage failed:', error);
+        }
+      }
+
+      function removeFromStorage(key) {
+        localStorage.removeItem(key);
+      }
+
+      function showError(element, message) {
+        const errorDiv = element.parentElement.querySelector('.error-message');
+        if (errorDiv) {
+          errorDiv.textContent = message;
+          errorDiv.classList.remove('hidden', 'opacity-0');
+          errorDiv.classList.add('opacity-100');
+          element.parentElement.classList.add('animate-bounce');
+        }
+      }
+
+      function clearAllErrors() {
+        document.querySelectorAll('.error-message').forEach((msg) => {
+          msg.classList.add('hidden', 'opacity-0');
+          msg.classList.remove('opacity-100');
+          msg.textContent = '';
+        });
+        document
+          .querySelectorAll('.animate-bounce')
+          .forEach((el) => el.classList.remove('animate-bounce'));
+      }
+
+      // Account Security
+      function isAccountLocked() {
+        const attempts = getFromStorage('loginFailedAttempts', 0);
+        const lastAttempt = getFromStorage('lastFailedAttempt');
+
+        if (attempts >= MAX_LOGIN_ATTEMPTS && lastAttempt) {
+          const timeSince = Date.now() - lastAttempt;
+          const lockoutTime = LOCKOUT_MINUTES * 60 * 1000;
+          if (timeSince < lockoutTime) {
+            return Math.ceil((lockoutTime - timeSince) / 60000);
+          }
+        }
+        return false;
+      }
+
+      // Login Process
+      function tryLogin(email, password, rememberMe) {
+        const users = getFromStorage('registeredUsers', {});
+
+        if (users[email] === password) {
+          // Success - clear failed attempts
+          removeFromStorage('loginFailedAttempts');
+          removeFromStorage('lastFailedAttempt');
+
+          // Create session
+          const sessionData = {
+            email: email,
+            loginTime: Date.now(),
+            sessionId: `session_${generateId()}`,
+            rememberMe: rememberMe,
+          };
+          saveToStorage('userSession', sessionData);
+
+          // Handle remember me
+          if (rememberMe) {
+            saveToStorage('rememberedEmail', email);
+          } else {
+            removeFromStorage('rememberedEmail');
+          }
+
+          // Record successful login
+          const history = getFromStorage('loginHistory', []);
+          history.unshift({
+            email: email,
+            timestamp: Date.now(),
+            success: true,
+            userAgent: navigator.userAgent,
+          });
+          if (history.length > 10) history.pop();
+          saveToStorage('loginHistory', history);
+
+          return { success: true };
+        } else {
+          // Failed - record attempt
+          const attempts = getFromStorage('loginFailedAttempts', 0) + 1;
+          saveToStorage('loginFailedAttempts', attempts);
+          saveToStorage('lastFailedAttempt', Date.now());
+
+          // Record failed login
+          const history = getFromStorage('loginHistory', []);
+          history.unshift({
+            email: email,
+            timestamp: Date.now(),
+            success: false,
+            userAgent: navigator.userAgent,
+          });
+          if (history.length > 10) history.pop();
+          saveToStorage('loginHistory', history);
+
+          const remaining = MAX_LOGIN_ATTEMPTS - attempts;
+          return {
+            success: false,
+            attempts: attempts,
+            remaining: Math.max(0, remaining),
+            locked: attempts >= MAX_LOGIN_ATTEMPTS,
+          };
+        }
+      }
+
+      // User Registration
+      function registerUser(userData) {
+        const users = getFromStorage('registeredUsers', {});
+        const allUsers = getFromStorage('allUserData', {});
+
+        if (users[userData.email]) {
+          return { success: false, error: 'Email already exists' };
+        }
+
+        users[userData.email] = userData.password;
+        saveToStorage('registeredUsers', users);
+
+        const fullUserData = {
+          ...userData,
+          registrationDate: Date.now(),
+          userId: `user_${generateId()}`,
+          isEmailVerified: true,
+          lastLogin: null,
+        };
+
+        allUsers[userData.email] = fullUserData;
+        saveToStorage('allUserData', allUsers);
+
+        // Record registration
+        const history = getFromStorage('registrationHistory', []);
+        history.unshift({
+          email: userData.email,
+          fullName: userData.fullName,
+          timestamp: Date.now(),
+          userAgent: navigator.userAgent,
+        });
+        if (history.length > 50) history.pop();
+        saveToStorage('registrationHistory', history);
+
+        return { success: true };
+      }
+
+      // OTP Functions
+      function createOTP(email) {
+        const otp = generateOTP();
+        const otpData = {
+          otp: otp,
+          email: email,
+          timestamp: Date.now(),
+          expires: Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000,
+        };
+
+        saveToStorage('currentOTP', otpData);
+        removeFromStorage('otpFailedAttempts');
+
+        return otp;
+      }
+
+      function verifyOTP(inputOTP) {
+        const storedData = getFromStorage('currentOTP');
+        if (!storedData) {
+          return { success: false, error: 'OTP session expired' };
+        }
+
+        if (Date.now() > storedData.expires) {
+          removeFromStorage('currentOTP');
+          return { success: false, error: 'OTP has expired' };
+        }
+
+        if (inputOTP === storedData.otp) {
+          removeFromStorage('currentOTP');
+          removeFromStorage('otpFailedAttempts');
+
+          const verificationData = {
+            email: storedData.email,
+            verified: true,
+            timestamp: Date.now(),
+            resetToken: `reset_${generateId()}`,
+          };
+          saveToStorage('passwordResetVerified', verificationData);
+
+          return { success: true, verificationData: verificationData };
+        } else {
+          const attempts = getFromStorage('otpFailedAttempts', 0) + 1;
+          saveToStorage('otpFailedAttempts', attempts);
+
+          if (attempts >= 3) {
+            removeFromStorage('currentOTP');
+            removeFromStorage('otpFailedAttempts');
+            return {
+              success: false,
+              error: 'Too many failed attempts',
+              maxReached: true,
+            };
+          }
+
+          return {
+            success: false,
+            error: `Invalid code. ${3 - attempts} attempts remaining`,
+            remaining: 3 - attempts,
+          };
+        }
+      }
+
+      function canResendOTP() {
+        const lastResend = getFromStorage('lastOTPResend');
+        const resendCount = getFromStorage('otpResendCount', 0);
+
+        if (resendCount >= 3) {
+          return { canResend: false, reason: 'Maximum resends reached' };
+        }
+
+        if (lastResend && Date.now() - lastResend < 60000) {
+          const remaining = Math.ceil(
+            (60000 - (Date.now() - lastResend)) / 1000,
+          );
+          return {
+            canResend: false,
+            reason: 'Cooldown active',
+            remaining: remaining,
+          };
+        }
+
+        return { canResend: true };
+      }
+
+      function resendOTP(email) {
+        const resendCheck = canResendOTP();
+        if (!resendCheck.canResend) {
+          return { success: false, ...resendCheck };
+        }
+
+        const newOTP = createOTP(email);
+        const resendCount = getFromStorage('otpResendCount', 0) + 1;
+
+        saveToStorage('otpResendCount', resendCount);
+        saveToStorage('lastOTPResend', Date.now());
+
+        return { success: true, otp: newOTP };
+      }
+
+      // UI Functions
+      function togglePassword(passwordId, eyeOpenId, eyeClosedId) {
+        const passwordInput = document.getElementById(passwordId);
+        const eyeOpen = document.getElementById(eyeOpenId);
+        const eyeClosed = document.getElementById(eyeClosedId);
+        const toggleButton = eyeOpen.closest('button');
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          eyeOpen.classList.add('hidden');
+          eyeClosed.classList.remove('hidden');
+          toggleButton.setAttribute('aria-pressed', 'true');
+          toggleButton.setAttribute('aria-label', 'Hide password');
+        } else {
+          passwordInput.type = 'password';
+          eyeOpen.classList.remove('hidden');
+          eyeClosed.classList.add('hidden');
+          toggleButton.setAttribute('aria-pressed', 'false');
+          toggleButton.setAttribute('aria-label', 'Show password');
+        }
+      }
+
+      function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('hidden', 'opacity-0');
+        modal.classList.add('flex', 'opacity-100');
+
+        // Focus management for accessibility
+        const firstFocusable = modal.querySelector(
+          'input, button, [tabindex="0"]',
+        );
+        if (firstFocusable) {
+          setTimeout(() => firstFocusable.focus(), 100);
+        }
+
+        // Store the element that opened the modal for focus restoration
+        modal.dataset.previousFocus = document.activeElement.id || '';
+
+        // Trap focus within modal
+        trapFocus(modal);
+      }
+
+      function hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('hidden', 'opacity-0');
+        modal.classList.remove('flex', 'opacity-100');
+
+        // Restore focus to the element that opened the modal
+        const previousFocusId = modal.dataset.previousFocus;
+        if (previousFocusId) {
+          const previousElement = document.getElementById(previousFocusId);
+          if (previousElement) {
+            previousElement.focus();
+          }
+        }
+
+        // Remove focus trap
+        removeFocusTrap(modal);
+      }
+
+      function setButtonLoading(button, isLoading, loadingText = 'Loading...') {
+        if (isLoading) {
+          button.dataset.originalText = button.innerHTML;
+          button.textContent = loadingText;
+          button.disabled = true;
+        } else {
+          button.innerHTML = button.dataset.originalText;
+          button.disabled = false;
+        }
+      }
+
+      // Form Setup
+      function setupFloatingLabels(container = document) {
+        container.querySelectorAll('.input-group').forEach((group) => {
+          const input = group.querySelector('input');
+          if (!input) return;
+
+          // Handle remembered email
+          if (input.id === 'email') {
+            const savedEmail = getFromStorage('rememberedEmail');
+            if (savedEmail) {
+              input.value = savedEmail;
+              group.classList.add('input-has-value');
+              const label = group.querySelector('.floating-label');
+              if (label) {
+                label.classList.add('-translate-y-6', 'scale-90');
+              }
+              document.getElementById('rememberMe').checked = true;
+            }
+
+            // Handle draft email
+            input.addEventListener('input', () => {
+              if (input.value) {
+                saveToStorage('draftEmail', input.value);
+              } else {
+                removeFromStorage('draftEmail');
+              }
+            });
+
+            const draftEmail = getFromStorage('draftEmail');
+            if (draftEmail && !input.value) {
+              input.value = draftEmail;
+              group.classList.add('input-has-value');
+              const label = group.querySelector('.floating-label');
+              if (label) {
+                label.classList.add('-translate-y-6', 'scale-90');
+              }
+            }
+          }
+
+          // Handle initial state for any input with value
+          if (input.value.length > 0) {
+            group.classList.add('input-has-value');
+            const label = group.querySelector('.floating-label');
+            if (label) {
+              label.classList.add('-translate-y-6', 'scale-90');
+            }
+          }
+
+          input.addEventListener('focus', () => {
+            group.classList.add('input-focused');
+            const label = group.querySelector('.floating-label');
+            if (label) {
+              label.classList.add(
+                '-translate-y-6',
+                'scale-90',
+                'text-emerald-600',
+                'font-semibold',
+              );
+            }
+          });
+          input.addEventListener('blur', () => {
+            group.classList.remove('input-focused');
+            const hasValue = input.value.length > 0;
+            group.classList.toggle('input-has-value', hasValue);
+            const label = group.querySelector('.floating-label');
+            if (label && !hasValue) {
+              label.classList.remove(
+                '-translate-y-6',
+                'scale-90',
+                'text-emerald-600',
+                'font-semibold',
+              );
+            }
+          });
+          input.addEventListener('input', () => {
+            const hasValue = input.value.length > 0;
+            group.classList.toggle('input-has-value', hasValue);
+            const label = group.querySelector('.floating-label');
+            if (label) {
+              if (hasValue) {
+                label.classList.add(
+                  '-translate-y-6',
+                  'scale-90',
+                  'text-emerald-600',
+                  'font-semibold',
+                );
+              } else {
+                label.classList.remove(
+                  '-translate-y-6',
+                  'scale-90',
+                  'text-emerald-600',
+                  'font-semibold',
+                );
+              }
+            }
+          });
+        });
+      }
+
+      // OTP Input Setup
+      function setupOTPInputs() {
+        const otpInputs = document.querySelectorAll('.otp-input');
+
+        otpInputs.forEach((input, index) => {
+          input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+
+            if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+              otpInputs[index + 1].focus();
+            }
+          });
+
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+              otpInputs[index - 1].focus();
+            }
+          });
+
+          input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData(
+              'text',
+            );
+            const pasteData = paste.replace(/[^0-9]/g, '').slice(0, OTP_LENGTH);
+
+            pasteData.split('').forEach((char, i) => {
+              if (index + i < otpInputs.length) {
+                otpInputs[index + i].value = char;
+              }
+            });
+
+            const nextIndex = Math.min(
+              index + pasteData.length,
+              otpInputs.length - 1,
+            );
+            otpInputs[nextIndex].focus();
+          });
+        });
+      }
+
+      // Cleanup expired data
+      function cleanupExpiredData() {
+        const otpData = getFromStorage('currentOTP');
+        if (otpData && Date.now() > otpData.expires) {
+          removeFromStorage('currentOTP');
+          removeFromStorage('otpFailedAttempts');
+          removeFromStorage('otpResendCount');
+        }
+
+        const resetData = getFromStorage('passwordResetVerified');
+        if (resetData && Date.now() - resetData.timestamp > 10 * 60 * 1000) {
+          removeFromStorage('passwordResetVerified');
+        }
+
+        const lastAttempt = getFromStorage('lastFailedAttempt');
+        if (
+          lastAttempt &&
+          Date.now() - lastAttempt > LOCKOUT_MINUTES * 60 * 1000
+        ) {
+          removeFromStorage('loginFailedAttempts');
+          removeFromStorage('lastFailedAttempt');
+        }
+      }
+
+      // When page loads
+      document.addEventListener('DOMContentLoaded', function () {
+        // Check for valid session
+        const session = getFromStorage('userSession');
+        if (session) {
+          const sessionAge = Date.now() - session.loginTime;
+          const maxAge = session.rememberMe
+            ? 30 * 24 * 60 * 60 * 1000
+            : 24 * 60 * 60 * 1000;
+
+          if (sessionAge < maxAge) {
+            console.log('Valid session found');
+          } else {
+            removeFromStorage('userSession');
+          }
+        }
+
+        // Cleanup expired data
+        cleanupExpiredData();
+
+        // Setup UI
+        setupFloatingLabels();
+        setupOTPInputs();
+
+        // Login form
+        document
+          .getElementById('loginForm')
+          .addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearAllErrors();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const submitButton = e.target.querySelector(
+              'button[type="submit"]',
+            );
+
+            const lockoutTime = isAccountLocked();
+            if (lockoutTime) {
+              showErrorToast(
+                `Too many failed attempts. Please try again in ${lockoutTime} minutes.`,
+              );
+              return;
+            }
+
+            let hasError = false;
+            if (!isValidEmail(email)) {
+              showError(
+                document.getElementById('email'),
+                'Please enter a valid email address',
+              );
+              hasError = true;
+            }
+
+            if (password.length < 6) {
+              showError(
+                document.getElementById('password'),
+                'Password must be at least 6 characters',
+              );
+              hasError = true;
+            }
+
+            if (hasError) {
+              setTimeout(() => clearAllErrors(), 500);
+              return;
+            }
+
+            setButtonLoading(submitButton, true, 'Signing In...');
+
+            setTimeout(() => {
+              const result = tryLogin(email, password, rememberMe);
+
+              if (result.success) {
+                showSuccessToast('Login successful! Welcome back.');
+
+                // Clear form fields after successful login (except if remember me is checked)
+                if (!rememberMe) {
+                  // Clear email field
+                  const emailInput = document.getElementById('email');
+                  const emailGroup = emailInput.parentElement;
+                  const emailLabel =
+                    emailGroup.querySelector('.floating-label');
+
+                  emailInput.value = '';
+                  emailGroup.classList.remove('input-has-value');
+                  if (emailLabel) {
+                    emailLabel.classList.remove(
+                      '-translate-y-6',
+                      'scale-90',
+                      'text-emerald-600',
+                      'font-semibold',
+                    );
+                  }
+
+                  // Also clear draft email from storage
+                  removeFromStorage('draftEmail');
+                }
+
+                // Always clear password field for security
+                const passwordInput = document.getElementById('password');
+                const passwordGroup = passwordInput.parentElement;
+                const passwordLabel =
+                  passwordGroup.querySelector('.floating-label');
+
+                passwordInput.value = '';
+                passwordGroup.classList.remove('input-has-value');
+                if (passwordLabel) {
+                  passwordLabel.classList.remove(
+                    '-translate-y-6',
+                    'scale-90',
+                    'text-emerald-600',
+                    'font-semibold',
+                  );
+                }
+
+                // Reset remember me checkbox if not used
+                if (!rememberMe) {
+                  document.getElementById('rememberMe').checked = false;
+                }
+              } else {
+                if (result.locked) {
+                  showErrorToast(
+                    'Too many failed attempts. Account temporarily locked for 15 minutes.',
+                  );
+                } else {
+                  showErrorToast(
+                    `Invalid credentials. ${result.remaining} attempts remaining before lockout.`,
+                  );
+                }
+              }
+
+              setButtonLoading(submitButton, false);
+            }, 1500);
+          });
+
+        // Password toggle
+        document
+          .getElementById('togglePassword')
+          .addEventListener('click', () => {
+            togglePassword('password', 'eyeOpen', 'eyeClosed');
+          });
+
+        document
+          .getElementById('toggleSignUpPassword')
+          .addEventListener('click', () => {
+            togglePassword(
+              'signUpPassword',
+              'signUpEyeOpen',
+              'signUpEyeClosed',
+            );
+          });
+
+        document
+          .getElementById('toggleSignUpConfirmPassword')
+          .addEventListener('click', () => {
+            togglePassword(
+              'signUpConfirmPassword',
+              'signUpConfirmEyeOpen',
+              'signUpConfirmEyeClosed',
+            );
+          });
+
+        // Forgot password
+        document
+          .getElementById('forgotPassword')
+          .addEventListener('click', function () {
+            const email = document.getElementById('email').value.trim();
+            if (!isValidEmail(email)) {
+              showErrorToast('Please enter your email address first');
+              document.getElementById('email').focus();
+              return;
+            }
+
+            const button = document.getElementById('forgotPassword');
+            setButtonLoading(button, true, 'Sending...');
+
+            setTimeout(() => {
+              const otp = createOTP(email);
+
+              console.log('Generated OTP:', otp);
+              showInfoToast(
+                `OTP sent to ${email}! For testing purposes, your OTP is: ${otp} (In real app, this would be sent via email)`,
+              );
+
+              showModal('otpModal');
+              setTimeout(
+                () => document.querySelector('.otp-input').focus(),
+                100,
+              );
+
+              setButtonLoading(button, false);
+            }, 1500);
+          });
+
+        // OTP verification
+        document
+          .getElementById('verifyOtp')
+          .addEventListener('click', function () {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            const otp = Array.from(otpInputs)
+              .map((input) => input.value)
+              .join('');
+
+            if (otp.length !== OTP_LENGTH) {
+              showWarningToast(
+                `Please enter the complete ${OTP_LENGTH}-digit code`,
+              );
+              return;
+            }
+
+            const button = document.getElementById('verifyOtp');
+            setButtonLoading(button, true, 'Verifying...');
+
+            setTimeout(() => {
+              const result = verifyOTP(otp);
+
+              if (result.success) {
+                showSuccessToast(
+                  'OTP verified successfully! You can now reset your password.',
+                );
+                hideModal('otpModal');
+                otpInputs.forEach((input) => (input.value = ''));
+                console.log(
+                  'Reset token generated:',
+                  result.verificationData.resetToken,
+                );
+              } else {
+                showErrorToast(result.error);
+                if (result.maxReached) {
+                  hideModal('otpModal');
+                } else {
+                  otpInputs.forEach((input) => (input.value = ''));
+                  otpInputs[0].focus();
+                }
+              }
+
+              setButtonLoading(button, false);
+            }, 1000);
+          });
+
+        // OTP resend
+        document
+          .getElementById('resendCode')
+          .addEventListener('click', function () {
+            const email = document.getElementById('email').value.trim();
+            const button = document.getElementById('resendCode');
+
+            const resendCheck = canResendOTP();
+            if (!resendCheck.canResend) {
+              if (resendCheck.remaining) {
+                showWarningToast(
+                  `Please wait ${resendCheck.remaining} seconds before requesting a new code.`,
+                );
+              } else {
+                showWarningToast(resendCheck.reason);
+              }
+              return;
+            }
+
+            setButtonLoading(button, true, 'Sending...');
+
+            setTimeout(() => {
+              const result = resendOTP(email);
+
+              if (result.success) {
+                console.log('New OTP generated:', result.otp);
+                showSuccessToast(
+                  `New OTP sent to ${email}! For testing: ${result.otp}`,
+                );
+
+                document
+                  .querySelectorAll('.otp-input')
+                  .forEach((input) => (input.value = ''));
+                document.querySelector('.otp-input').focus();
+              } else {
+                showErrorToast(result.reason);
+              }
+
+              setButtonLoading(button, false);
+            }, 2000);
+          });
+
+        // Close OTP modal
+        document
+          .getElementById('closeModal')
+          .addEventListener('click', () => hideModal('otpModal'));
+
+        // Sign up modal
+        document.getElementById('showSignUp').addEventListener('click', () => {
+          showModal('signUpModal');
+          document.getElementById('signUpFullName').focus();
+        });
+
+        document
+          .getElementById('showLogin')
+          .addEventListener('click', () => hideModal('signUpModal'));
+        document
+          .getElementById('closeSignUpModal')
+          .addEventListener('click', () => hideModal('signUpModal'));
+
+        // Sign up form
+        document
+          .getElementById('signUpForm')
+          .addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearAllErrors();
+
+            const fullName = document
+              .getElementById('signUpFullName')
+              .value.trim();
+            const email = document.getElementById('signUpEmail').value.trim();
+            const password = document.getElementById('signUpPassword').value;
+            const confirmPassword = document.getElementById(
+              'signUpConfirmPassword',
+            ).value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            const submitButton = e.target.querySelector(
+              'button[type="submit"]',
+            );
+
+            let hasError = false;
+
+            if (fullName.length < 2) {
+              showError(
+                document.getElementById('signUpFullName'),
+                'Please enter your full name (at least 2 characters)',
+              );
+              hasError = true;
+            }
+
+            if (!isValidEmail(email)) {
+              showError(
+                document.getElementById('signUpEmail'),
+                'Please enter a valid email address',
+              );
+              hasError = true;
+            } else {
+              const existingUsers = getFromStorage('registeredUsers', {});
+              if (existingUsers[email]) {
+                showError(
+                  document.getElementById('signUpEmail'),
+                  'An account with this email already exists',
+                );
+                hasError = true;
+              }
+            }
+
+            if (!isStrongPassword(password)) {
+              showError(
+                document.getElementById('signUpPassword'),
+                'Password must be at least 8 characters with uppercase, lowercase, and number',
+              );
+              hasError = true;
+            }
+
+            if (password !== confirmPassword) {
+              showError(
+                document.getElementById('signUpConfirmPassword'),
+                'Passwords do not match',
+              );
+              hasError = true;
+            }
+
+            if (!agreeTerms) {
+              showWarningToast(
+                'Please agree to the Terms of Service and Privacy Policy',
+              );
+              hasError = true;
+            }
+
+            if (hasError) {
+              setTimeout(() => clearAllErrors(), 500);
+              return;
+            }
+
+            setButtonLoading(submitButton, true, 'Creating Account...');
+
+            setTimeout(() => {
+              const userData = { fullName, email, password };
+              const result = registerUser(userData);
+
+              if (result.success) {
+                showSuccessToast(
+                  `Account created successfully! Welcome ${fullName}! You can now sign in with your email and password.`,
+                );
+
+                document.getElementById('email').value = email;
+                document
+                  .querySelector('#email')
+                  .parentElement.classList.add('input-has-value');
+
+                hideModal('signUpModal');
+                document.getElementById('signUpForm').reset();
+                document
+                  .querySelectorAll('#signUpModal .input-group')
+                  .forEach((group) => {
+                    group.classList.remove('input-has-value');
+                  });
+              } else {
+                showErrorToast(`Registration failed: ${result.error}`);
+              }
+
+              setButtonLoading(submitButton, false);
+            }, 2000);
+          });
+
+        // Modal backdrop clicks
+        document.getElementById('otpModal').addEventListener('click', (e) => {
+          if (e.target.id === 'otpModal') hideModal('otpModal');
+        });
+
+        document
+          .getElementById('signUpModal')
+          .addEventListener('click', (e) => {
+            if (e.target.id === 'signUpModal') hideModal('signUpModal');
+          });
+
+        // Setup floating labels for sign up modal
+        setupFloatingLabels(document.getElementById('signUpModal'));
+
+        // Prevent double-tap zoom on iOS
+        let lastTouchEnd = 0;
+        document.addEventListener(
+          'touchend',
+          (event) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+              event.preventDefault();
+            }
+            lastTouchEnd = now;
+          },
+          false,
+        );
+      });
+    </script>
+  </body>
+</html>

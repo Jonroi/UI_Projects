@@ -1,0 +1,404 @@
+# UI Projects Repository - Global .gitignore
+
+# =============================================
+# Node.js / JavaScript / TypeScript Projects
+# =============================================
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Package Managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# =============================================
+# Next.js / React Projects
+# =============================================
+
+# Next.js build output
+.next/
+out/
+
+# Production build
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel deployment
+.vercel
+
+# Turbo
+.turbo
+
+# =============================================
+# Vue.js Projects
+# =============================================
+
+# Vue.js build output
+dist/
+
+# Local env files
+.env.*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =============================================
+# Angular Projects
+# =============================================
+
+# Angular build output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Angular cache
+.angular/cache
+
+# =============================================
+# React Native Projects
+# =============================================
+
+# React Native
+.expo/
+.expo-shared/
+
+# CocoaPods
+ios/Pods/
+ios/build/
+
+# Android
+android/app/build/
+android/build/
+android/.gradle/
+
+# Metro
+.metro-health-check*
+
+# =============================================
+# Vite Projects
+# =============================================
+
+# Vite build output
+dist/
+dist-ssr/
+*.local
+
+# =============================================
+# Webpack Projects
+# =============================================
+
+# Webpack build output
+/dist
+/build
+
+# =============================================
+# Parcel Projects
+# =============================================
+
+# Parcel cache
+.cache/
+.parcel-cache/
+
+# =============================================
+# CSS Preprocessors
+# =============================================
+
+# Sass
+.sass-cache/
+*.css.map
+*.sass.map
+*.scss.map
+
+# Less
+*.less.map
+
+# Stylus
+*.styl.map
+
+# =============================================
+# Design Tools
+# =============================================
+
+# Figma
+*.fig
+
+# Sketch
+*.sketch
+
+# Adobe XD
+*.xd
+
+# =============================================
+# Development Tools
+# =============================================
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor backup files
+*~
+*.swp
+*.swo
+*#
+.#*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# JetBrains IDEs
+.idea/
+*.iml
+out/
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.ftpconfig
+.sftpconfig
+
+# =============================================
+# Testing
+# =============================================
+
+# Jest
+coverage/
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# =============================================
+# Databases
+# =============================================
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# =============================================
+# Documentation
+# =============================================
+
+# Documentation build
+docs/_build/
+
+# =============================================
+# Docker
+# =============================================
+
+# Docker
+.dockerignore
+Dockerfile.prod
+
+# =============================================
+# Deployment
+# =============================================
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Netlify
+.netlify/
+
+# Surge
+.surgeignore
+
+# Now
+.now
+
+# =============================================
+# Security
+# =============================================
+
+# API keys and secrets
+.env.secret
+*.pem
+*.key
+*.crt
+
+# =============================================
+# Miscellaneous
+# =============================================
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Image optimization
+*.webp.orig
+*.jpg.orig
+*.png.orig
+
+# Font files (if not part of the project)
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+
+# Video files (usually too large for git)
+*.mp4
+*.avi
+*.mov
+*.wmv
+
+# Large data files
+*.csv
+*.json.large
+*.xml.large
+
+# Temporary React/JS files
+.eslintrc.js.backup
+tsconfig.json.backup
+
+# =============================================
+# Project Specific
+# =============================================
+
+# Storybook
+storybook-static/
+
+# Chromatic
+chromatic-*.log
+
+# Bundle analyzer
+bundle-analyzer-report.html
+
+# Size limit
+.size-limit.json
+
+# PWA
+sw.js
+workbox-*.js
+
+# GraphQL
+schema.json
+introspection.json
+
+# =============================================
+# End of .gitignore
+# ============================================= 

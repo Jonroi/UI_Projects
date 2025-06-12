@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  * {
+    @apply border-dark-600/20;
+  }
+
+  body {
+    @apply bg-gradient-dark text-dark-100 font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+}
+
+@layer components {
+  /* Modern Input Components */
+  .input-modern {
+    @apply w-full px-4 py-3.5 bg-dark-800/40 border border-dark-600/50 rounded-xl 
+           text-dark-100 placeholder-dark-400 backdrop-blur-sm
+           transition-all duration-300 ease-in-out
+           focus:bg-dark-800/60 focus:border-accent-500 focus:outline-none 
+           focus:ring-2 focus:ring-accent-500/20 focus:shadow-lg focus:shadow-accent-500/10
+           hover:border-dark-500 hover:bg-dark-800/50;
+  }
+
+  .input-group {
+    @apply relative;
+  }
+
+  /* Floating Label Styles */
+  .floating-label {
+    @apply absolute left-4 top-3.5 text-dark-400 pointer-events-none 
+           origin-left transition-all duration-300 ease-in-out font-medium;
+  }
+
+  .input-focused .floating-label,
+  .input-has-value .floating-label {
+    @apply -translate-y-6 scale-90 text-accent-400 font-semibold;
+  }
+
+  /* Modern Button Styles */
+  .btn-primary {
+    @apply w-full bg-gradient-button text-white font-semibold py-3.5 px-6 rounded-xl
+           shadow-lg shadow-accent-600/25 border border-accent-600/20
+           hover:shadow-xl hover:shadow-accent-600/40 hover:scale-[1.02]
+           focus:outline-none focus:ring-4 focus:ring-accent-500/50
+           transition-all duration-300 ease-in-out
+           active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply bg-dark-700/50 text-dark-100 border border-dark-600/50 rounded-xl
+           px-4 py-2.5 font-medium
+           hover:bg-dark-700 hover:border-dark-500 hover:text-white
+           focus:outline-none focus:ring-2 focus:ring-dark-500/50
+           transition-all duration-200 ease-in-out;
+  }
+
+  .btn-ghost {
+    @apply text-dark-300 hover:text-accent-400 hover:bg-dark-800/30 
+           px-3 py-2 rounded-lg transition-all duration-200 ease-in-out;
+  }
+
+  /* Modern Card Styles */
+  .card-modern {
+    @apply bg-gradient-card backdrop-blur-xl rounded-2xl 
+           border border-dark-700/50 shadow-2xl shadow-dark-950/50
+           relative overflow-hidden;
+  }
+
+  .card-modern::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent 
+           rounded-2xl pointer-events-none;
+  }
+
+  /* Glass Effect */
+  .glass-effect {
+    @apply backdrop-blur-xl bg-white/[0.02] border border-white/10;
+  }
+
+  /* Modern Toast Styles */
+  .toast-modern {
+    @apply bg-dark-800/95 backdrop-blur-md border border-dark-600/50 
+           text-dark-100 rounded-xl shadow-2xl shadow-dark-950/50;
+  }
+
+  /* Social Button Styles */
+  .social-btn {
+    @apply w-12 h-12 bg-dark-700/50 border border-dark-600/50 rounded-xl
+           flex items-center justify-center text-dark-300
+           hover:bg-dark-700 hover:border-dark-500 hover:text-white hover:scale-105
+           transition-all duration-300 ease-in-out;
+  }
+
+  /* Loading States */
+  .loading-shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .loading-shimmer::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent
+           transform -translate-x-full animate-[shimmer_1.5s_infinite];
+  }
+
+  /* Error Message Styles */
+  .error-message {
+    @apply text-red-400 text-sm font-medium mt-2 opacity-0 
+           transition-all duration-300 ease-in-out;
+  }
+
+  .error-message.show {
+    @apply opacity-100;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-accent-400 to-accent-600 bg-clip-text text-transparent;
+  }
+
+  .border-gradient {
+    @apply border border-transparent bg-gradient-to-r from-accent-500/20 to-accent-600/20 bg-origin-border;
+  }
+}
+
+/* Custom Animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-900/50;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-dark-500;
+}

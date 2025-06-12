@@ -16,13 +16,17 @@ export const metadata: Metadata = {
     'Modern dark theme enterprise login system with advanced security features',
   keywords: ['login', 'authentication', 'enterprise', 'security', 'dark theme'],
   authors: [{ name: 'Enterprise Portal' }],
-  viewport: 'width=device-width, initial-scale=1',
-  themeColor: '#0f172a',
   robots: 'noindex, nofollow',
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0f172a',
 };
 
 export default function RootLayout({

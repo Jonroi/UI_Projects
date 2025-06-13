@@ -75,6 +75,9 @@ const generateId = (): string =>
   `id_${Math.random().toString(36).substr(2, 9)}`;
 
 const formatPropertyName = (propertyKey: string): string => {
+  if (propertyKey === 'x' || propertyKey === 'y') {
+    return `${propertyKey.toUpperCase()} Position`;
+  }
   return propertyKey
     .split(/(?=[A-Z])/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -1449,7 +1452,7 @@ const TimelinePanel: React.FC<{
         </div>
 
         {/* Scrollable Timeline Section */}
-        <div className='flex-1 overflow-auto' ref={timelineRef}>
+        <div className='flex-1 overflow-auto pl-4' ref={timelineRef}>
           {/* Time Ruler */}
           <div className='sticky top-0 z-10 bg-white/5 border-b border-white/10'>
             <div
@@ -1736,215 +1739,6 @@ const ExportModal: React.FC<{
             Download
           </button>
         </div>
-      </div>
-    </div>
-  );
-};
-
-/** Export controls with functional CSS and SVG export. */
-const ExportControls: React.FC<{
-  layers: Layer[];
-  duration: number;
-  onExport: (modalState: {
-    isOpen: boolean;
-    title: string;
-    content: string;
-    fileExtension: string;
-    mimeType: string;
-  }) => void;
-  variant?: 'default' | 'compact';
-}> = ({ layers, duration, onExport, variant = 'default' }) => {
-  const handleExportCSS = () => {
-    let cssContent = '/* CSS Animation Export */\n\n';
-    layers.forEach((layer) => {
-      cssContent += `@keyframes ${layer.id} {\n`;
-      layer.x.keyframes.forEach((kf) => {
-        const percentage = (kf.time / duration) * 100;
-        cssContent += `  ${percentage}% { transform: translate(${
-          kf.value
-        }px, ${getAnimatedValueAtTime(
-          layer.y,
-          kf.time,
-        )}px) rotate(${getAnimatedValueAtTime(
-          layer.rotation,
-          kf.time,
-        )}deg) scale(${getAnimatedValueAtTime(
-          layer.scale,
-          kf.time,
-        )}); opacity: ${getAnimatedValueAtTime(layer.opacity, kf.time)}; }\n`;
-      });
-      cssContent += '}\n\n';
-    });
-    cssContent +=
-      '/* HTML Structure */\n/*\n<div class="animation-container">\n';
-    layers.forEach((layer) => {
-      cssContent += `  <div class="layer ${layer.id}" style="background-color: ${layer.color}"></div>\n`;
-    });
-    cssContent += '</div>\n*/';
-    return cssContent;
-  };
-
-  const handleExportSVG = () => {
-    let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 800 600">\n`;
-    layers.forEach((layer) => {
-      // X animation
-      if (layer.x.keyframes.length > 0) {
-        const sortedKeyframes = [...layer.x.keyframes].sort(
-          (a, b) => a.time - b.time,
-        );
-        svgContent += `    <animateTransform id="${layer.id}-x" attributeName="transform" type="translate"\n`;
-        svgContent += `      values="${sortedKeyframes
-          .map((kf) => `${kf.value} 0`)
-          .join('; ')}"\n`;
-        svgContent += `      dur="${duration}ms" repeatCount="indefinite"/>\n`;
-      }
-
-      // Y animation
-      if (layer.y.keyframes.length > 0) {
-        const sortedKeyframes = [...layer.y.keyframes].sort(
-          (a, b) => a.time - b.time,
-        );
-        svgContent += `    <animateTransform id="${layer.id}-y" attributeName="transform" type="translate"\n`;
-        svgContent += `      values="${sortedKeyframes
-          .map((kf) => `0 ${kf.value}`)
-          .join('; ')}"\n`;
-        svgContent += `      dur="${duration}ms" repeatCount="indefinite"/>\n`;
-      }
-
-      // Opacity animation
-      if (layer.opacity.keyframes.length > 0) {
-        const sortedKeyframes = [...layer.opacity.keyframes].sort(
-          (a, b) => a.time - b.time,
-        );
-        svgContent += `    <animate id="${layer.id}-opacity" attributeName="opacity"\n`;
-        svgContent += `      values="${sortedKeyframes
-          .map((kf) => kf.value)
-          .join('; ')}"\n`;
-        svgContent += `      dur="${duration}ms" repeatCount="indefinite"/>\n`;
-      }
-
-      // Rotation animation
-      if (layer.rotation.keyframes.length > 0) {
-        const sortedKeyframes = [...layer.rotation.keyframes].sort(
-          (a, b) => a.time - b.time,
-        );
-        svgContent += `    <animateTransform id="${layer.id}-rotation" attributeName="transform" type="rotate"\n`;
-        svgContent += `      values="${sortedKeyframes
-          .map(
-            (kf) =>
-              `${kf.value} ${
-                (layer.x.keyframes[0]?.value || layer.x.defaultValue) +
-                (layer.width.keyframes[0]?.value || layer.width.defaultValue) /
-                  2
-              } ${
-                (layer.y.keyframes[0]?.value || layer.y.defaultValue) +
-                (layer.height.keyframes[0]?.value ||
-                  layer.height.defaultValue) /
-                  2
-              }`,
-          )
-          .join('; ')}"\n`;
-        svgContent += `      dur="${duration}ms" repeatCount="indefinite"/>\n`;
-      }
-    });
-
-    svgContent += `  </defs>\n\n`;
-
-    // Generate SVG elements for each layer
-    layers
-      .sort((a, b) => a.zIndex - b.zIndex)
-      .forEach((layer) => {
-        const x = layer.x.keyframes[0]?.value || layer.x.defaultValue;
-        const y = layer.y.keyframes[0]?.value || layer.y.defaultValue;
-        const width =
-          layer.width.keyframes[0]?.value || layer.width.defaultValue;
-        const height =
-          layer.height.keyframes[0]?.value || layer.height.defaultValue;
-        const opacity =
-          layer.opacity.keyframes[0]?.value || layer.opacity.defaultValue;
-
-        svgContent += `  <rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${layer.color}" opacity="${opacity}">\n`;
-
-        // Add animations
-        if (layer.x.keyframes.length > 0) {
-          svgContent += `    <use href="#${layer.id}-x"/>\n`;
-        }
-        if (layer.y.keyframes.length > 0) {
-          svgContent += `    <use href="#${layer.id}-y"/>\n`;
-        }
-        if (layer.opacity.keyframes.length > 0) {
-          svgContent += `    <use href="#${layer.id}-opacity"/>\n`;
-        }
-        if (layer.rotation.keyframes.length > 0) {
-          svgContent += `    <use href="#${layer.id}-rotation"/>\n`;
-        }
-
-        svgContent += `  </rect>\n`;
-      });
-
-    svgContent += `</svg>`;
-
-    return svgContent;
-  };
-
-  return (
-    <div className='bg-white/5 border border-white/10 rounded-xl p-4'>
-      <h4 className='text-lg font-semibold text-white mb-4'>Export</h4>
-      <div className='flex space-x-2'>
-        <button
-          onClick={() => {
-            const modalState = {
-              isOpen: true,
-              title: 'Export CSS Animation',
-              content: handleExportCSS(),
-              fileExtension: 'css',
-              mimeType: 'text/css',
-            };
-            onExport(modalState);
-          }}
-          className='px-3 py-1.5 bg-blue-500/20 text-blue-300 rounded-lg text-xs font-medium border border-blue-500/30 hover:bg-blue-500/30 transition-colors duration-200 flex items-center gap-1.5'
-          title='Export as CSS animations with keyframes'>
-          <svg
-            className='w-3.5 h-3.5'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'>
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'
-            />
-          </svg>
-          <span>CSS</span>
-        </button>
-        <button
-          onClick={() => {
-            const modalState = {
-              isOpen: true,
-              title: 'Export SVG Animation',
-              content: handleExportSVG(),
-              fileExtension: 'svg',
-              mimeType: 'image/svg+xml',
-            };
-            onExport(modalState);
-          }}
-          className='px-3 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-lg text-xs font-medium border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors duration-200 flex items-center gap-1.5'
-          title='Export as animated SVG'>
-          <svg
-            className='w-3.5 h-3.5'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'>
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'
-            />
-          </svg>
-          <span>SVG</span>
-        </button>
       </div>
     </div>
   );

@@ -663,49 +663,51 @@ const LayerPanel: React.FC<{
   );
 
   return (
-    <div className='flex flex-col'>
-      <div className='flex justify-between items-center mb-4'>
-        <h3 className='text-lg font-semibold text-white'>Layers</h3>
+    <div className='flex flex-col h-full pt-1'>
+      <div className='flex items-center gap-3 mb-4 pl-1'>
         <button
           onClick={onAddLayer}
           className='px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-sm rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-medium'>
           + Add Layer
         </button>
+        <h3 className='text-lg font-semibold text-white'>Layers</h3>
       </div>
-      <div className='space-y-2 max-h-64 overflow-y-auto'>
-        {sortedLayers.map((layer) => (
-          <LayerItem
-            key={layer.id}
-            layer={layer}
-            isSelected={layer.id === selectedLayerId}
-            onSelect={onSelectLayer}
-            onDelete={onDeleteLayer}
-            onMoveUp={(id) => onMoveLayer(id, 'up')}
-            onMoveDown={(id) => onMoveLayer(id, 'down')}
-          />
-        ))}
-        {sortedLayers.length === 0 && (
-          <div className='bg-white/5 border border-white/10 rounded-xl p-6 text-center'>
-            <div className='w-12 h-12 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl mx-auto mb-3 flex items-center justify-center'>
-              <svg
-                className='w-6 h-6 text-blue-400'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'>
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                />
-              </svg>
+      <div className='flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20'>
+        <div className='space-y-2 pr-4 pl-1'>
+          {sortedLayers.map((layer) => (
+            <LayerItem
+              key={layer.id}
+              layer={layer}
+              isSelected={layer.id === selectedLayerId}
+              onSelect={onSelectLayer}
+              onDelete={onDeleteLayer}
+              onMoveUp={(id) => onMoveLayer(id, 'up')}
+              onMoveDown={(id) => onMoveLayer(id, 'down')}
+            />
+          ))}
+          {sortedLayers.length === 0 && (
+            <div className='bg-white/5 border border-white/10 rounded-xl p-6 text-center mx-1'>
+              <div className='w-12 h-12 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl mx-auto mb-3 flex items-center justify-center'>
+                <svg
+                  className='w-6 h-6 text-blue-400'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'>
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                  />
+                </svg>
+              </div>
+              <p className='text-gray-400 text-sm'>No layers yet</p>
+              <p className='text-gray-500 text-xs mt-1'>
+                Add a layer to get started
+              </p>
             </div>
-            <p className='text-gray-400 text-sm'>No layers yet</p>
-            <p className='text-gray-500 text-xs mt-1'>
-              Add a layer to get started
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1184,83 +1186,57 @@ const ExportModal: React.FC<{
   fileExtension: string;
   mimeType: string;
 }> = ({ isOpen, onClose, title, content, fileExtension, mimeType }) => {
-  const [copied, setCopied] = useState(false);
+  if (!isOpen) return null;
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
-    }
-  };
-
-  const downloadFile = () => {
+  const handleDownload = () => {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `animation.${fileExtension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `animation.${fileExtension}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-      <div className='bg-gray-800 rounded-lg shadow-2xl border border-gray-600 w-full max-w-4xl max-h-[90vh] flex flex-col'>
-        {/* Header */}
-        <div className='flex items-center justify-between p-4 border-b border-gray-600'>
+    <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50'>
+      <div className='bg-gray-800 rounded-xl shadow-2xl w-[800px] max-h-[80vh] flex flex-col border border-white/10'>
+        <div className='flex items-center justify-between p-4 border-b border-white/10'>
           <h2 className='text-xl font-semibold text-white'>{title}</h2>
           <button
             onClick={onClose}
-            className='text-gray-400 hover:text-white text-2xl font-bold'>
-            ×
+            className='p-2 hover:bg-white/10 rounded-lg transition-colors'>
+            <svg
+              className='w-5 h-5 text-gray-400 hover:text-white'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
           </button>
         </div>
-
-        {/* Content */}
-        <div className='flex-1 p-4 overflow-hidden flex flex-col'>
-          <div className='flex items-center justify-between mb-3'>
-            <span className='text-sm text-gray-300'>
-              Preview and export your animation
-            </span>
-            <div className='flex space-x-2'>
-              <button
-                onClick={copyToClipboard}
-                className={`px-3 py-1 rounded text-sm transition-colors ${
-                  copied
-                    ? 'bg-green-600 text-white'
-                    : 'bg-blue-600 hover:bg-blue-500 text-white'
-                }`}>
-                {copied ? '✓ Copied!' : '📋 Copy'}
-              </button>
-              <button
-                onClick={downloadFile}
-                className='px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded text-sm'>
-                💾 Download
-              </button>
-            </div>
-          </div>
-
-          {/* Code Preview */}
-          <div className='flex-1 border border-gray-600 rounded overflow-hidden'>
-            <pre className='h-full overflow-auto p-4 bg-gray-900 text-gray-100 text-sm leading-relaxed'>
-              <code>{content}</code>
-            </pre>
-          </div>
+        <div className='flex-1 overflow-y-auto p-4'>
+          <pre className='bg-gray-900/50 rounded-lg p-4 text-sm text-gray-300 font-mono overflow-x-auto'>
+            {content}
+          </pre>
         </div>
-
-        {/* Footer */}
-        <div className='p-4 border-t border-gray-600 flex justify-end'>
+        <div className='p-4 border-t border-white/10 flex justify-end gap-3'>
           <button
             onClick={onClose}
-            className='px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded'>
+            className='px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors'>
             Close
+          </button>
+          <button
+            onClick={handleDownload}
+            className='px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg transition-colors'>
+            Download
           </button>
         </div>
       </div>
@@ -1272,20 +1248,14 @@ const ExportModal: React.FC<{
 const ExportControls: React.FC<{
   layers: Layer[];
   duration: number;
-}> = ({ layers, duration }) => {
-  const [modalState, setModalState] = useState<{
+  onExport: (modalState: {
     isOpen: boolean;
     title: string;
     content: string;
     fileExtension: string;
     mimeType: string;
-  }>({
-    isOpen: false,
-    title: '',
-    content: '',
-    fileExtension: '',
-    mimeType: '',
-  });
+  }) => void;
+}> = ({ layers, duration, onExport }) => {
   const generateCSSKeyframes = (
     property: AnimatedProperty,
     propertyName: string,
@@ -1412,7 +1382,7 @@ const ExportControls: React.FC<{
     });
     cssContent += '</div>\n*/';
 
-    setModalState({
+    onExport({
       isOpen: true,
       title: 'Export CSS Animation',
       content: cssContent,
@@ -1524,7 +1494,7 @@ const ExportControls: React.FC<{
 
     svgContent += `</svg>`;
 
-    setModalState({
+    onExport({
       isOpen: true,
       title: 'Export SVG Animation',
       content: svgContent,
@@ -1534,48 +1504,37 @@ const ExportControls: React.FC<{
   };
 
   return (
-    <>
-      <div className='bg-white/5 border border-white/10 rounded-xl p-4'>
-        <h4 className='text-lg font-semibold text-white mb-4'>Export</h4>
-        <div className='space-y-3'>
-          <button
-            onClick={handleExportCSS}
-            className='w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center space-x-2'
-            title='Export as CSS animations with keyframes'>
-            <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
-              <path
-                fillRule='evenodd'
-                d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z'
-                clipRule='evenodd'
-              />
-            </svg>
-            <span>Export CSS</span>
-          </button>
-          <button
-            onClick={handleExportSVG}
-            className='w-full px-4 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center space-x-2'
-            title='Export as animated SVG'>
-            <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
-              <path
-                fillRule='evenodd'
-                d='M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z'
-                clipRule='evenodd'
-              />
-            </svg>
-            <span>Export SVG</span>
-          </button>
-        </div>
+    <div className='bg-white/5 border border-white/10 rounded-xl p-4'>
+      <h4 className='text-lg font-semibold text-white mb-4'>Export</h4>
+      <div className='space-y-3'>
+        <button
+          onClick={handleExportCSS}
+          className='w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center space-x-2'
+          title='Export as CSS animations with keyframes'>
+          <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
+            <path
+              fillRule='evenodd'
+              d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z'
+              clipRule='evenodd'
+            />
+          </svg>
+          <span>Export CSS</span>
+        </button>
+        <button
+          onClick={handleExportSVG}
+          className='w-full px-4 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center space-x-2'
+          title='Export as animated SVG'>
+          <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
+            <path
+              fillRule='evenodd'
+              d='M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z'
+              clipRule='evenodd'
+            />
+          </svg>
+          <span>Export SVG</span>
+        </button>
       </div>
-
-      <ExportModal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
-        title={modalState.title}
-        content={modalState.content}
-        fileExtension={modalState.fileExtension}
-        mimeType={modalState.mimeType}
-      />
-    </>
+    </div>
   );
 };
 
@@ -1583,6 +1542,19 @@ const ExportControls: React.FC<{
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(initialAppState);
   const animationFrameId = useRef<number | null>(null);
+  const [exportModalState, setExportModalState] = useState<{
+    isOpen: boolean;
+    title: string;
+    content: string;
+    fileExtension: string;
+    mimeType: string;
+  }>({
+    isOpen: false,
+    title: '',
+    content: '',
+    fileExtension: '',
+    mimeType: '',
+  });
 
   const previewAreaRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState<{
@@ -1922,66 +1894,97 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className='flex flex-1 overflow-hidden'>
-        {/* Left Panel: Layer Management & Keyframe Editor */}
-        <div className='w-80 min-w-[300px] bg-white/5 backdrop-blur-xl p-4 flex flex-col border-r border-white/10 shadow-2xl overflow-hidden'>
-          <div className='flex-1 overflow-y-auto scrollbar-thin'>
-            <LayerPanel
-              layers={appState.layers}
-              selectedLayerId={appState.selectedLayerId}
-              onSelectLayer={handleSelectLayer}
-              onAddLayer={handleAddLayer}
-              onDeleteLayer={handleDeleteLayer}
-              onMoveLayer={handleMoveLayer}
-            />
-            {appState.selectedKeyframeInfo && (
-              <div className='mt-6 pt-6 border-t border-white/10'>
-                <KeyframeEditor
-                  selectedKeyframeInfo={appState.selectedKeyframeInfo}
+      <div className='flex-1 flex flex-col overflow-hidden'>
+        <div className='flex-1 flex overflow-hidden'>
+          {/* Left Panel: Layer Management & Keyframe Editor */}
+          <div className='w-80 min-w-[300px] bg-white/5 backdrop-blur-xl p-4 flex flex-col border-r border-white/10 shadow-2xl overflow-hidden'>
+            <div className='flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20'>
+              <LayerPanel
+                layers={appState.layers}
+                selectedLayerId={appState.selectedLayerId}
+                onSelectLayer={(layerId) =>
+                  setAppState((prev) => ({ ...prev, selectedLayerId: layerId }))
+                }
+                onAddLayer={handleAddLayer}
+                onDeleteLayer={handleDeleteLayer}
+                onMoveLayer={handleMoveLayer}
+              />
+              {appState.selectedKeyframeInfo && (
+                <div className='mt-6 pt-6 border-t border-white/10'>
+                  <KeyframeEditor
+                    selectedKeyframeInfo={appState.selectedKeyframeInfo}
+                    layers={appState.layers}
+                    onUpdateKeyframe={handleUpdateKeyframe}
+                    onClearSelection={() =>
+                      setAppState((prev) => ({
+                        ...prev,
+                        selectedKeyframeInfo: null,
+                      }))
+                    }
+                  />
+                </div>
+              )}
+              <div className='mt-6'>
+                <ExportControls
                   layers={appState.layers}
-                  onUpdateKeyframe={handleUpdateKeyframe}
-                  onClearSelection={() => handleSelectKeyframe(null)}
+                  duration={appState.duration}
+                  onExport={setExportModalState}
                 />
               </div>
-            )}
-            <div className='mt-6'>
-              <ExportControls
+            </div>
+          </div>
+
+          {/* Center Panel: Preview Area */}
+          <div
+            ref={previewAreaRef}
+            className='flex-1 bg-gradient-to-br from-slate-800/30 to-slate-900/30 flex items-center justify-center p-12 relative'>
+            <div className='w-full h-full max-w-4xl max-h-full bg-slate-800/20 rounded-2xl p-8 shadow-2xl border border-white/10 flex items-center justify-center'>
+              <PreviewCanvas
                 layers={appState.layers}
-                duration={appState.duration}
+                currentTime={appState.currentTime}
+                canvasSize={canvasSize}
               />
             </div>
           </div>
         </div>
 
-        {/* Center Panel: Preview Area */}
+        {/* Bottom Panel: Timeline */}
         <div
-          ref={previewAreaRef}
-          className='flex-1 bg-gradient-to-br from-slate-800/30 to-slate-900/30 flex items-center justify-center p-12 relative'>
-          <div className='w-full h-full max-w-4xl max-h-full bg-slate-800/20 rounded-2xl p-8 shadow-2xl border border-white/10 flex items-center justify-center'>
-            <PreviewCanvas
-              layers={appState.layers}
-              currentTime={appState.currentTime}
-              canvasSize={canvasSize}
-            />
-          </div>
+          className='h-80 min-h-[250px] bg-white/5 backdrop-blur-xl border-t border-white/10 shadow-2xl overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20'
+          style={{ resize: 'vertical' }}>
+          <TimelinePanel
+            appState={appState}
+            onSetCurrentTime={(time) =>
+              setAppState((prev) => ({ ...prev, currentTime: time }))
+            }
+            onTogglePlay={() =>
+              setAppState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }))
+            }
+            onAddKeyframe={handleAddKeyframe}
+            onDragKeyframe={handleDragKeyframe}
+            onSelectKeyframe={(info) =>
+              setAppState((prev) => ({ ...prev, selectedKeyframeInfo: info }))
+            }
+            onChangeDuration={(duration) =>
+              setAppState((prev) => ({ ...prev, duration }))
+            }
+            onChangeZoom={(zoom) =>
+              setAppState((prev) => ({ ...prev, timelineZoom: zoom }))
+            }
+          />
         </div>
       </div>
 
-      {/* Bottom Panel: Timeline */}
-      <div
-        className='h-80 min-h-[250px] bg-white/5 backdrop-blur-xl border-t border-white/10 shadow-2xl scrollbar-thin'
-        style={{ resize: 'vertical' }}>
-        <TimelinePanel
-          appState={appState}
-          onSetCurrentTime={handleSetCurrentTime}
-          onTogglePlay={handleTogglePlay}
-          onAddKeyframe={handleAddKeyframe}
-          onDragKeyframe={handleDragKeyframe}
-          onSelectKeyframe={handleSelectKeyframe}
-          onChangeDuration={handleChangeDuration}
-          onChangeZoom={handleChangeZoom}
-        />
-      </div>
+      <ExportModal
+        isOpen={exportModalState.isOpen}
+        onClose={() =>
+          setExportModalState((prev) => ({ ...prev, isOpen: false }))
+        }
+        title={exportModalState.title}
+        content={exportModalState.content}
+        fileExtension={exportModalState.fileExtension}
+        mimeType={exportModalState.mimeType}
+      />
     </div>
   );
 };

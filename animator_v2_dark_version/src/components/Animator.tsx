@@ -252,13 +252,15 @@ const createNewLayer = (
   name: string,
   zIndex: number,
   color: string = LAYER_COLORS[zIndex % LAYER_COLORS.length],
+  initialX: number = 50,
+  initialY: number = 50,
 ): Layer => ({
   id: generateId(),
   name,
   color,
   zIndex,
-  x: createDefaultAnimatedProperty(50, 50),
-  y: createDefaultAnimatedProperty(50, 50),
+  x: createDefaultAnimatedProperty(initialX, initialX),
+  y: createDefaultAnimatedProperty(initialY, initialY),
   width: createDefaultAnimatedProperty(100, 100),
   height: createDefaultAnimatedProperty(50, 50),
   opacity: createDefaultAnimatedProperty(1, 1),
@@ -354,7 +356,7 @@ const EASING_OPTIONS: { label: string; value: EasingFunction }[] = [
 
 /** UI for editing a selected keyframe's properties. */
 const KeyframeEditor: React.FC<{
-  selectedKeyframeInfo: SelectedKeyframeInfo;
+  selectedKeyframeInfo: SelectedKeyframeInfo | null;
   layers: Layer[];
   onUpdateKeyframe: (
     layerId: string,
@@ -364,195 +366,109 @@ const KeyframeEditor: React.FC<{
     newValue: number,
     newEasing: EasingFunction,
   ) => void;
+  onDeleteKeyframe: (
+    layerId: string,
+    propertyKey: string,
+    keyframeId: string,
+  ) => void;
   onClearSelection: () => void;
-}> = ({ selectedKeyframeInfo, layers, onUpdateKeyframe, onClearSelection }) => {
-  const { layerId, propertyKey, keyframeId } = selectedKeyframeInfo;
-
-  const layer = layers.find((l) => l.id === layerId);
-  const property = layer ? (layer[propertyKey] as AnimatedProperty) : null;
-  const keyframe = property?.keyframes.find((kf) => kf.id === keyframeId);
-
-  const [timeInput, setTimeInput] = useState(keyframe?.time.toString() || '0');
-  const [valueInput, setValueInput] = useState(
-    keyframe?.value.toString() || '0',
-  );
-  const [easingInput, setEasingInput] = useState<string>( // Store string representation of easing
-    keyframe
-      ? Array.isArray(keyframe.easing)
-        ? keyframe.easing.join(',')
-        : keyframe.easing
-      : 'linear',
-  );
+}> = ({
+  selectedKeyframeInfo,
+  layers,
+  onUpdateKeyframe,
+  onDeleteKeyframe,
+  onClearSelection,
+}) => {
+  const [time, setTime] = useState<number>(0);
+  const [easing, setEasing] = useState<EasingFunction>('linear');
 
   useEffect(() => {
-    if (keyframe) {
-      setTimeInput(keyframe.time.toString());
-      setValueInput(keyframe.value.toString());
-      setEasingInput(
-        Array.isArray(keyframe.easing)
-          ? keyframe.easing.join(',')
-          : keyframe.easing,
-      );
-    }
-  }, [keyframe]);
+    if (selectedKeyframeInfo) {
+      const { layerId, propertyKey, keyframeId } = selectedKeyframeInfo;
+      const layer = layers.find((l) => l.id === layerId);
+      const property = layer
+        ? (layer[propertyKey as keyof Layer] as AnimatedProperty)
+        : null;
+      const keyframe = property?.keyframes.find((kf) => kf.id === keyframeId);
 
-  if (!keyframe || !layer || !property) {
+      if (keyframe) {
+        setTime(keyframe.time);
+        setEasing(keyframe.easing);
+      }
+    }
+  }, [selectedKeyframeInfo, layers]);
+
+  const handleSave = () => {
+    if (selectedKeyframeInfo) {
+      const { layerId, propertyKey, keyframeId } = selectedKeyframeInfo;
+      const layer = layers.find((l) => l.id === layerId);
+      const property = layer
+        ? (layer[propertyKey as keyof Layer] as AnimatedProperty)
+        : null;
+      const keyframe = property?.keyframes.find((kf) => kf.id === keyframeId);
+
+      if (keyframe) {
+        onUpdateKeyframe(
+          layerId,
+          propertyKey,
+          keyframeId,
+          time,
+          keyframe.value,
+          easing,
+        );
+      }
+    }
+  };
+
+  if (!selectedKeyframeInfo) {
     return (
-      <div className='bg-white/5 border border-white/10 rounded-xl p-6 text-center'>
-        <div className='w-12 h-12 bg-orange-500/20 rounded-xl mx-auto mb-3 flex items-center justify-center'>
-          <svg
-            className='w-6 h-6 text-orange-400'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'>
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z'
-            />
-          </svg>
-        </div>
-        <p className='text-gray-400 text-sm'>No keyframe selected</p>
-        <p className='text-gray-500 text-xs mt-1'>
-          Select a keyframe to edit its properties
-        </p>
+      <div className='p-4 text-center text-white/50'>
+        Select a keyframe to edit its properties
       </div>
     );
   }
 
-  const handleSave = () => {
-    const newTime = parseInt(timeInput, 10);
-    const newValue = parseFloat(valueInput);
-    let newEasing: EasingFunction;
-
-    const selectedEasingOption = EASING_OPTIONS.find(
-      (opt) =>
-        (Array.isArray(opt.value) ? opt.value.join(',') : opt.value) ===
-        easingInput,
-    );
-    if (selectedEasingOption) {
-      newEasing = selectedEasingOption.value;
-    } else {
-      // Custom Bezier string input
-      const parts = easingInput.split(',').map((s) => parseFloat(s.trim()));
-      if (parts.length === 4 && parts.every((p) => !isNaN(p))) {
-        newEasing = parts as [number, number, number, number];
-      } else {
-        newEasing = 'linear'; // Fallback
-      }
-    }
-
-    if (!isNaN(newTime) && !isNaN(newValue)) {
-      onUpdateKeyframe(
-        layerId,
-        propertyKey,
-        keyframeId,
-        newTime,
-        newValue,
-        newEasing,
-      );
-    }
-  };
-
   return (
-    <div className='bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-xl'>
-      <div className='flex items-center justify-between mb-6'>
-        <div>
-          <h4 className='text-lg font-semibold text-white'>Keyframe Editor</h4>
-          <p className='text-sm text-gray-400'>
-            {layer.name} • {propertyKey}
-          </p>
-        </div>
-        <button
-          onClick={onClearSelection}
-          className='p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all duration-200'>
-          <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
-            <path
-              fillRule='evenodd'
-              d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-              clipRule='evenodd'
-            />
-          </svg>
-        </button>
+    <div className='p-4 space-y-4'>
+      <div>
+        <label className='block text-xs text-white/50 mb-1'>Time (ms)</label>
+        <input
+          type='number'
+          value={time}
+          onChange={(e) => setTime(parseFloat(e.target.value))}
+          className='w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-blue-500/50'
+        />
       </div>
-
-      <div className='space-y-4'>
-        <div>
-          <label
-            htmlFor='kf-time'
-            className='block text-sm font-medium text-gray-300 mb-2'>
-            Time (ms)
-          </label>
-          <input
-            type='number'
-            id='kf-time'
-            value={timeInput}
-            onChange={(e) => setTimeInput(e.target.value)}
-            className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200'
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor='kf-value'
-            className='block text-sm font-medium text-gray-300 mb-2'>
-            Value
-          </label>
-          <input
-            type='number'
-            step='any'
-            id='kf-value'
-            value={valueInput}
-            onChange={(e) => setValueInput(e.target.value)}
-            className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200'
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor='kf-easing'
-            className='block text-sm font-medium text-gray-300 mb-2'>
-            Easing Function
-          </label>
-          <select
-            id='kf-easing'
-            value={easingInput}
-            onChange={(e) => setEasingInput(e.target.value)}
-            className='w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200'>
-            {EASING_OPTIONS.map((opt) => (
-              <option
-                key={opt.label}
-                value={
-                  Array.isArray(opt.value) ? opt.value.join(',') : opt.value
-                }
-                className='bg-gray-800 text-white'>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-
-          {EASING_OPTIONS.find(
-            (opt) =>
-              (Array.isArray(opt.value) ? opt.value.join(',') : opt.value) ===
-                easingInput && Array.isArray(opt.value),
-          ) && (
-            <input
-              type='text'
-              placeholder='e.g., 0.25,0.1,0.25,1'
-              value={easingInput}
-              onChange={(e) => setEasingInput(e.target.value)}
-              className='mt-2 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200'
-            />
-          )}
-        </div>
+      <div>
+        <label className='block text-xs text-white/50 mb-1'>Easing</label>
+        <select
+          value={typeof easing === 'string' ? easing : 'custom'}
+          onChange={(e) => setEasing(e.target.value as EasingFunction)}
+          className='w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-blue-500/50'>
+          <option value='linear'>Linear</option>
+          <option value='easeInQuad'>Ease In Quad</option>
+          <option value='easeOutQuad'>Ease Out Quad</option>
+          <option value='easeInOutQuad'>Ease In Out Quad</option>
+          <option value='custom'>Custom Bezier</option>
+        </select>
       </div>
-
-      <div className='mt-6 flex justify-end'>
+      <div className='flex gap-2'>
         <button
           onClick={handleSave}
-          className='px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105'>
+          className='flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded-lg transition-colors'>
           Save Changes
+        </button>
+        <button
+          onClick={() =>
+            selectedKeyframeInfo &&
+            onDeleteKeyframe(
+              selectedKeyframeInfo.layerId,
+              selectedKeyframeInfo.propertyKey,
+              selectedKeyframeInfo.keyframeId,
+            )
+          }
+          className='flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg transition-colors'>
+          Delete Keyframe
         </button>
       </div>
     </div>
@@ -649,6 +565,11 @@ const LayerPanel: React.FC<{
   onAddLayer: () => void;
   onDeleteLayer: (layerId: string) => void;
   onMoveLayer: (layerId: string, direction: 'up' | 'down') => void;
+  onUpdateLayer: (
+    layerId: string,
+    propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
+    value: number,
+  ) => void;
 }> = ({
   layers,
   selectedLayerId,
@@ -656,59 +577,580 @@ const LayerPanel: React.FC<{
   onAddLayer,
   onDeleteLayer,
   onMoveLayer,
+  onUpdateLayer,
 }) => {
-  const sortedLayers = useMemo(
-    () => [...layers].sort((a, b) => b.zIndex - a.zIndex),
-    [layers],
-  );
+  const selectedLayer = layers.find((l) => l.id === selectedLayerId);
+
+  const handleIncrement = (
+    layerId: string,
+    propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
+    currentValue: number,
+    step: number = 1,
+  ) => {
+    onUpdateLayer(layerId, propertyKey, currentValue + step);
+  };
+
+  const handleDecrement = (
+    layerId: string,
+    propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
+    currentValue: number,
+    step: number = 1,
+  ) => {
+    onUpdateLayer(layerId, propertyKey, currentValue - step);
+  };
 
   return (
-    <div className='flex flex-col h-full pt-1'>
-      <div className='flex items-center gap-3 mb-4 pl-1'>
+    <div className='space-y-4 pr-0.5'>
+      <div className='flex items-center justify-between'>
+        <h2 className='text-lg font-semibold text-white/90'>Layers</h2>
         <button
           onClick={onAddLayer}
-          className='px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-sm rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-medium'>
-          + Add Layer
-        </button>
-        <h3 className='text-lg font-semibold text-white'>Layers</h3>
-      </div>
-      <div className='flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20'>
-        <div className='space-y-2 pr-4 pl-1'>
-          {sortedLayers.map((layer) => (
-            <LayerItem
-              key={layer.id}
-              layer={layer}
-              isSelected={layer.id === selectedLayerId}
-              onSelect={onSelectLayer}
-              onDelete={onDeleteLayer}
-              onMoveUp={(id) => onMoveLayer(id, 'up')}
-              onMoveDown={(id) => onMoveLayer(id, 'down')}
+          className='p-2 text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors'>
+          <svg
+            className='w-5 h-5'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'>
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M12 4v16m8-8H4'
             />
-          ))}
-          {sortedLayers.length === 0 && (
-            <div className='bg-white/5 border border-white/10 rounded-xl p-6 text-center mx-1'>
-              <div className='w-12 h-12 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-xl mx-auto mb-3 flex items-center justify-center'>
-                <svg
-                  className='w-6 h-6 text-blue-400'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'>
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                  />
-                </svg>
-              </div>
-              <p className='text-gray-400 text-sm'>No layers yet</p>
-              <p className='text-gray-500 text-xs mt-1'>
-                Add a layer to get started
-              </p>
-            </div>
-          )}
-        </div>
+          </svg>
+        </button>
       </div>
+
+      <div className='space-y-2'>
+        {layers.map((layer) => (
+          <LayerItem
+            key={layer.id}
+            layer={layer}
+            isSelected={layer.id === selectedLayerId}
+            onSelect={onSelectLayer}
+            onDelete={onDeleteLayer}
+            onMoveUp={() => onMoveLayer(layer.id, 'up')}
+            onMoveDown={() => onMoveLayer(layer.id, 'down')}
+          />
+        ))}
+      </div>
+
+      {selectedLayer && (
+        <div className='mt-6 p-4 bg-white/5 rounded-xl border border-white/10'>
+          <h3 className='text-sm font-medium text-white/70 mb-4'>
+            Layer Properties
+          </h3>
+          <div className='space-y-3'>
+            <div>
+              <label className='block text-xs text-white/50 mb-1'>
+                X Position
+              </label>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() =>
+                    handleDecrement(
+                      selectedLayer.id,
+                      'x',
+                      getAnimatedValueAtTime(selectedLayer.x, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M20 12H4'
+                    />
+                  </svg>
+                </button>
+                <input
+                  type='number'
+                  value={getAnimatedValueAtTime(selectedLayer.x, 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(selectedLayer.id, 'x', value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(
+                        selectedLayer.id,
+                        'x',
+                        Number(value.toFixed(1)),
+                      );
+                    }
+                  }}
+                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                />
+                <button
+                  onClick={() =>
+                    handleIncrement(
+                      selectedLayer.id,
+                      'x',
+                      getAnimatedValueAtTime(selectedLayer.x, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className='block text-xs text-white/50 mb-1'>
+                Y Position
+              </label>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() =>
+                    handleDecrement(
+                      selectedLayer.id,
+                      'y',
+                      getAnimatedValueAtTime(selectedLayer.y, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M20 12H4'
+                    />
+                  </svg>
+                </button>
+                <input
+                  type='number'
+                  value={getAnimatedValueAtTime(selectedLayer.y, 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(selectedLayer.id, 'y', value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(
+                        selectedLayer.id,
+                        'y',
+                        Number(value.toFixed(1)),
+                      );
+                    }
+                  }}
+                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                />
+                <button
+                  onClick={() =>
+                    handleIncrement(
+                      selectedLayer.id,
+                      'y',
+                      getAnimatedValueAtTime(selectedLayer.y, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className='block text-xs text-white/50 mb-1'>Width</label>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() =>
+                    handleDecrement(
+                      selectedLayer.id,
+                      'width',
+                      getAnimatedValueAtTime(selectedLayer.width, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M20 12H4'
+                    />
+                  </svg>
+                </button>
+                <input
+                  type='number'
+                  value={getAnimatedValueAtTime(selectedLayer.width, 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(selectedLayer.id, 'width', value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(
+                        selectedLayer.id,
+                        'width',
+                        Number(value.toFixed(1)),
+                      );
+                    }
+                  }}
+                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                />
+                <button
+                  onClick={() =>
+                    handleIncrement(
+                      selectedLayer.id,
+                      'width',
+                      getAnimatedValueAtTime(selectedLayer.width, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className='block text-xs text-white/50 mb-1'>Height</label>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() =>
+                    handleDecrement(
+                      selectedLayer.id,
+                      'height',
+                      getAnimatedValueAtTime(selectedLayer.height, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M20 12H4'
+                    />
+                  </svg>
+                </button>
+                <input
+                  type='number'
+                  value={getAnimatedValueAtTime(selectedLayer.height, 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(selectedLayer.id, 'height', value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(
+                        selectedLayer.id,
+                        'height',
+                        Number(value.toFixed(1)),
+                      );
+                    }
+                  }}
+                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                />
+                <button
+                  onClick={() =>
+                    handleIncrement(
+                      selectedLayer.id,
+                      'height',
+                      getAnimatedValueAtTime(selectedLayer.height, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className='block text-xs text-white/50 mb-1'>
+                Opacity
+              </label>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() =>
+                    handleDecrement(
+                      selectedLayer.id,
+                      'opacity',
+                      getAnimatedValueAtTime(selectedLayer.opacity, 0),
+                      0.1,
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M20 12H4'
+                    />
+                  </svg>
+                </button>
+                <input
+                  type='number'
+                  min='0'
+                  max='1'
+                  step='0.1'
+                  value={getAnimatedValueAtTime(selectedLayer.opacity, 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(selectedLayer.id, 'opacity', value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(
+                        selectedLayer.id,
+                        'opacity',
+                        Number(value.toFixed(1)),
+                      );
+                    }
+                  }}
+                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                />
+                <button
+                  onClick={() =>
+                    handleIncrement(
+                      selectedLayer.id,
+                      'opacity',
+                      getAnimatedValueAtTime(selectedLayer.opacity, 0),
+                      0.1,
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className='block text-xs text-white/50 mb-1'>
+                Rotation
+              </label>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() =>
+                    handleDecrement(
+                      selectedLayer.id,
+                      'rotation',
+                      getAnimatedValueAtTime(selectedLayer.rotation, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M20 12H4'
+                    />
+                  </svg>
+                </button>
+                <input
+                  type='number'
+                  value={getAnimatedValueAtTime(selectedLayer.rotation, 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(selectedLayer.id, 'rotation', value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(
+                        selectedLayer.id,
+                        'rotation',
+                        Number(value.toFixed(1)),
+                      );
+                    }
+                  }}
+                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                />
+                <button
+                  onClick={() =>
+                    handleIncrement(
+                      selectedLayer.id,
+                      'rotation',
+                      getAnimatedValueAtTime(selectedLayer.rotation, 0),
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className='block text-xs text-white/50 mb-1'>Scale</label>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() =>
+                    handleDecrement(
+                      selectedLayer.id,
+                      'scale',
+                      getAnimatedValueAtTime(selectedLayer.scale, 0),
+                      0.1,
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M20 12H4'
+                    />
+                  </svg>
+                </button>
+                <input
+                  type='number'
+                  min='0.1'
+                  step='0.1'
+                  value={getAnimatedValueAtTime(selectedLayer.scale, 0)}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(selectedLayer.id, 'scale', value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                      onUpdateLayer(
+                        selectedLayer.id,
+                        'scale',
+                        Number(value.toFixed(1)),
+                      );
+                    }
+                  }}
+                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                />
+                <button
+                  onClick={() =>
+                    handleIncrement(
+                      selectedLayer.id,
+                      'scale',
+                      getAnimatedValueAtTime(selectedLayer.scale, 0),
+                      0.1,
+                    )
+                  }
+                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                  <svg
+                    className='w-4 h-4 text-gray-400 hover:text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1156,8 +1598,17 @@ const PreviewCanvas: React.FC<{
   layers: Layer[];
   currentTime: number;
   canvasSize: { width: number; height: number };
-}> = ({ layers, currentTime, canvasSize }) => {
+  onLayerPositionChange?: (layerId: string, x: number, y: number) => void;
+}> = ({ layers, currentTime, canvasSize, onLayerPositionChange }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [draggingLayer, setDraggingLayer] = useState<{
+    id: string;
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const [hoveredLayer, setHoveredLayer] = useState<string | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1166,48 +1617,132 @@ const PreviewCanvas: React.FC<{
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Clear canvas with solid background
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Sort layers by zIndex for correct stacking
-    const sortedLayers = [...layers].sort((a, b) => a.zIndex - b.zIndex);
-
-    sortedLayers.forEach((layer) => {
+    // Draw each layer
+    layers.forEach((layer) => {
       const x = getAnimatedValueAtTime(layer.x, currentTime);
       const y = getAnimatedValueAtTime(layer.y, currentTime);
       const width = getAnimatedValueAtTime(layer.width, currentTime);
       const height = getAnimatedValueAtTime(layer.height, currentTime);
       const opacity = getAnimatedValueAtTime(layer.opacity, currentTime);
-      const rotation = getAnimatedValueAtTime(layer.rotation, currentTime); // degrees
+      const rotation = getAnimatedValueAtTime(layer.rotation, currentTime);
       const scale = getAnimatedValueAtTime(layer.scale, currentTime);
 
       ctx.save();
 
       // Apply transformations
-      // Translate to the element's anchor point (center for rotation/scale)
       ctx.translate(x + width / 2, y + height / 2);
       ctx.rotate((rotation * Math.PI) / 180);
       ctx.scale(scale, scale);
 
       // Set appearance
-      ctx.globalAlpha = Math.max(0, Math.min(1, opacity)); // Clamp opacity
+      ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
       ctx.fillStyle = layer.color;
 
-      // Draw the element (origin is now its center)
+      // Draw the element
       ctx.fillRect(-width / 2, -height / 2, width, height);
 
       ctx.restore();
     });
   }, [layers, currentTime, canvasSize]);
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    if (draggingLayer && onLayerPositionChange) {
+      const deltaX = mouseX - draggingLayer.startX;
+      const deltaY = mouseY - draggingLayer.startY;
+
+      const newX = draggingLayer.offsetX + deltaX;
+      const newY = draggingLayer.offsetY + deltaY;
+
+      onLayerPositionChange(draggingLayer.id, newX, newY);
+    } else {
+      // Check for hover
+      let foundHover = false;
+      for (let i = layers.length - 1; i >= 0; i--) {
+        const layer = layers[i];
+        const x = getAnimatedValueAtTime(layer.x, currentTime);
+        const y = getAnimatedValueAtTime(layer.y, currentTime);
+        const width = getAnimatedValueAtTime(layer.width, currentTime);
+        const height = getAnimatedValueAtTime(layer.height, currentTime);
+
+        if (
+          mouseX >= x &&
+          mouseX <= x + width &&
+          mouseY >= y &&
+          mouseY <= y + height
+        ) {
+          setHoveredLayer(layer.id);
+          foundHover = true;
+          break;
+        }
+      }
+      if (!foundHover) {
+        setHoveredLayer(null);
+      }
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onLayerPositionChange) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Check each layer from top to bottom (reverse order)
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const layer = layers[i];
+      const x = getAnimatedValueAtTime(layer.x, currentTime);
+      const y = getAnimatedValueAtTime(layer.y, currentTime);
+      const width = getAnimatedValueAtTime(layer.width, currentTime);
+      const height = getAnimatedValueAtTime(layer.height, currentTime);
+
+      if (
+        mouseX >= x &&
+        mouseX <= x + width &&
+        mouseY >= y &&
+        mouseY <= y + height
+      ) {
+        setDraggingLayer({
+          id: layer.id,
+          startX: mouseX,
+          startY: mouseY,
+          offsetX: x,
+          offsetY: y,
+        });
+        break;
+      }
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDraggingLayer(null);
+  };
+
   return (
     <canvas
       ref={canvasRef}
       width={canvasSize.width}
       height={canvasSize.height}
-      className='border border-white/20 rounded-lg shadow-lg'
-      style={{ display: 'block', backgroundColor: '#ffffff' }}
+      className={`bg-transparent ${
+        draggingLayer ? 'cursor-grabbing' : hoveredLayer ? 'cursor-grab' : ''
+      }`}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     />
   );
 };
@@ -1647,41 +2182,82 @@ const App: React.FC = () => {
     };
   }, [appState.isPlaying, appState.duration]);
 
-  const handleSetCurrentTime = useCallback((time: number) => {
-    setAppState((prev) => ({
-      ...prev,
-      currentTime: Math.max(0, Math.min(prev.duration, time)),
-    }));
-  }, []);
-
-  const handleTogglePlay = useCallback(() => {
-    setAppState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
-  }, []);
-
-  const handleSelectLayer = useCallback((layerId: string) => {
-    setAppState((prev) => ({
-      ...prev,
-      selectedLayerId: layerId,
-      selectedKeyframeInfo: null,
-      selectedPropertyKey: null,
-    }));
-  }, []);
-
   const handleAddLayer = useCallback(() => {
     setAppState((prev) => {
-      const newZIndex =
-        prev.layers.reduce((maxZ, l) => Math.max(maxZ, l.zIndex), -1) + 1;
+      const newZIndex = prev.layers.length;
       const newLayer = createNewLayer(
-        `Layer ${prev.layers.length + 1}`,
+        `Layer ${newZIndex + 1}`,
         newZIndex,
+        LAYER_COLORS[newZIndex % LAYER_COLORS.length],
+        canvasSize.width / 2 - 50, // Center horizontally
+        canvasSize.height / 2 - 25, // Center vertically
       );
+
+      // Add initial keyframes for all properties
+      newLayer.x.keyframes = [
+        {
+          id: generateId(),
+          time: 0,
+          value: newLayer.x.defaultValue,
+          easing: 'linear',
+        },
+      ];
+      newLayer.y.keyframes = [
+        {
+          id: generateId(),
+          time: 0,
+          value: newLayer.y.defaultValue,
+          easing: 'linear',
+        },
+      ];
+      newLayer.width.keyframes = [
+        {
+          id: generateId(),
+          time: 0,
+          value: newLayer.width.defaultValue,
+          easing: 'linear',
+        },
+      ];
+      newLayer.height.keyframes = [
+        {
+          id: generateId(),
+          time: 0,
+          value: newLayer.height.defaultValue,
+          easing: 'linear',
+        },
+      ];
+      newLayer.opacity.keyframes = [
+        {
+          id: generateId(),
+          time: 0,
+          value: newLayer.opacity.defaultValue,
+          easing: 'linear',
+        },
+      ];
+      newLayer.rotation.keyframes = [
+        {
+          id: generateId(),
+          time: 0,
+          value: newLayer.rotation.defaultValue,
+          easing: 'linear',
+        },
+      ];
+      newLayer.scale.keyframes = [
+        {
+          id: generateId(),
+          time: 0,
+          value: newLayer.scale.defaultValue,
+          easing: 'linear',
+        },
+      ];
+
       return {
         ...prev,
         layers: [...prev.layers, newLayer],
-        selectedLayerId: newLayer.id, // Auto-select new layer
+        selectedLayerId: newLayer.id,
       };
     });
-  }, []);
+  }, [canvasSize]);
 
   const handleDeleteLayer = useCallback((layerIdToDelete: string) => {
     setAppState((prev) => ({
@@ -1844,13 +2420,6 @@ const App: React.FC = () => {
     [],
   );
 
-  const handleSelectKeyframe = useCallback(
-    (info: SelectedKeyframeInfo | null) => {
-      setAppState((prev) => ({ ...prev, selectedKeyframeInfo: info }));
-    },
-    [],
-  );
-
   const handleUpdateKeyframe = useCallback(
     (
       layerId: string,
@@ -1889,17 +2458,87 @@ const App: React.FC = () => {
     [],
   );
 
-  const handleChangeDuration = useCallback((newDuration: number) => {
-    setAppState((prev) => ({
-      ...prev,
-      duration: newDuration,
-      currentTime: Math.min(prev.currentTime, newDuration), // Adjust current time if it's beyond new duration
-    }));
-  }, []);
+  const handleUpdateLayer = useCallback(
+    (
+      layerId: string,
+      propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
+      value: number,
+    ) => {
+      setAppState((prev) => ({
+        ...prev,
+        layers: prev.layers.map((layer) => {
+          if (layer.id === layerId) {
+            // Update the property's default value
+            const updatedProperty = {
+              ...layer[propertyKey],
+              defaultValue: value,
+            };
 
-  const handleChangeZoom = useCallback((newZoom: number) => {
-    setAppState((prev) => ({ ...prev, timelineZoom: newZoom }));
-  }, []);
+            // If there's a keyframe at time 0, update it too
+            const keyframes = layer[propertyKey].keyframes.map((kf) => {
+              if (kf.time === 0) {
+                return { ...kf, value };
+              }
+              return kf;
+            });
+
+            // If no keyframe at time 0, add one
+            if (!keyframes.some((kf) => kf.time === 0)) {
+              keyframes.unshift({
+                id: generateId(),
+                time: 0,
+                value,
+                easing: 'linear',
+              });
+            }
+
+            return {
+              ...layer,
+              [propertyKey]: {
+                ...updatedProperty,
+                keyframes,
+              },
+            };
+          }
+          return layer;
+        }),
+      }));
+    },
+    [],
+  );
+
+  const handleUpdateLayerPosition = useCallback(
+    (layerId: string, x: number, y: number) => {
+      setAppState((prev) => ({
+        ...prev,
+        layers: prev.layers.map((layer) => {
+          if (layer.id === layerId) {
+            return {
+              ...layer,
+              x: {
+                ...layer.x,
+                defaultValue: x,
+                keyframes: layer.x.keyframes.map((kf) => ({
+                  ...kf,
+                  value: kf.time === 0 ? x : kf.value,
+                })),
+              },
+              y: {
+                ...layer.y,
+                defaultValue: y,
+                keyframes: layer.y.keyframes.map((kf) => ({
+                  ...kf,
+                  value: kf.time === 0 ? y : kf.value,
+                })),
+              },
+            };
+          }
+          return layer;
+        }),
+      }));
+    },
+    [],
+  );
 
   return (
     <div className='h-screen w-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden antialiased select-none'>
@@ -1943,6 +2582,7 @@ const App: React.FC = () => {
                 onAddLayer={handleAddLayer}
                 onDeleteLayer={handleDeleteLayer}
                 onMoveLayer={handleMoveLayer}
+                onUpdateLayer={handleUpdateLayer}
               />
               {appState.selectedKeyframeInfo && (
                 <div className='mt-6 pt-6 border-t border-white/10'>
@@ -1950,6 +2590,7 @@ const App: React.FC = () => {
                     selectedKeyframeInfo={appState.selectedKeyframeInfo}
                     layers={appState.layers}
                     onUpdateKeyframe={handleUpdateKeyframe}
+                    onDeleteKeyframe={handleDeleteLayer}
                     onClearSelection={() =>
                       setAppState((prev) => ({
                         ...prev,
@@ -1978,6 +2619,7 @@ const App: React.FC = () => {
                 layers={appState.layers}
                 currentTime={appState.currentTime}
                 canvasSize={canvasSize}
+                onLayerPositionChange={handleUpdateLayerPosition}
               />
             </div>
           </div>

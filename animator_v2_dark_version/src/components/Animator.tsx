@@ -1603,8 +1603,8 @@ const App: React.FC = () => {
       if (entries[0]) {
         const { width, height } = entries[0].contentRect;
         setCanvasSize({
-          width: Math.max(200, width - 120), // Much larger canvas with minimal padding
-          height: Math.max(200, height - 120),
+          width: Math.max(200, width - 40), // Reduced padding to make canvas larger
+          height: Math.max(200, height - 40), // Reduced padding to make canvas larger
         });
       }
     });
@@ -1972,8 +1972,8 @@ const App: React.FC = () => {
           {/* Center Panel: Preview Area */}
           <div
             ref={previewAreaRef}
-            className='flex-1 bg-gradient-to-br from-slate-800/30 to-slate-900/30 flex items-center justify-center p-12 relative'>
-            <div className='w-full h-full max-w-4xl max-h-full bg-slate-800/20 rounded-2xl p-8 shadow-2xl border border-white/10 flex items-center justify-center'>
+            className='flex-1 bg-gradient-to-br from-slate-800/30 to-slate-900/30 flex items-center justify-center relative'>
+            <div className='w-full h-full max-w-4xl max-h-full bg-slate-800/20 rounded-2xl p-2 shadow-2xl flex items-center justify-center'>
               <PreviewCanvas
                 layers={appState.layers}
                 currentTime={appState.currentTime}

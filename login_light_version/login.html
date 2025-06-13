@@ -118,7 +118,7 @@
                 aria-label="Toggle password visibility"
                 aria-pressed="false"
                 aria-describedby="password"
-                class="absolute right-4 top-4 text-slate-500 hover:text-slate-700 transition-all duration-200 p-1 hover:bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:bg-slate-100">
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-all duration-200 p-1 hover:bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:bg-slate-100">
                 <i
                   id="eyeOpen"
                   class="fas fa-eye text-lg"
@@ -1281,27 +1281,24 @@
         document
           .getElementById('togglePassword')
           .addEventListener('click', () => {
-            togglePassword('password', 'eyeOpen', 'eyeClosed');
-          });
+            const passwordInput = document.getElementById('password');
+            const eyeOpen = document.getElementById('eyeOpen');
+            const eyeClosed = document.getElementById('eyeClosed');
+            const toggleButton = eyeOpen.closest('button');
 
-        document
-          .getElementById('toggleSignUpPassword')
-          .addEventListener('click', () => {
-            togglePassword(
-              'signUpPassword',
-              'signUpEyeOpen',
-              'signUpEyeClosed',
-            );
-          });
-
-        document
-          .getElementById('toggleSignUpConfirmPassword')
-          .addEventListener('click', () => {
-            togglePassword(
-              'signUpConfirmPassword',
-              'signUpConfirmEyeOpen',
-              'signUpConfirmEyeClosed',
-            );
+            if (passwordInput.type === 'password') {
+              passwordInput.type = 'text';
+              eyeOpen.classList.add('hidden');
+              eyeClosed.classList.remove('hidden');
+              toggleButton.setAttribute('aria-pressed', 'true');
+              toggleButton.setAttribute('aria-label', 'Hide password');
+            } else {
+              passwordInput.type = 'password';
+              eyeOpen.classList.remove('hidden');
+              eyeClosed.classList.add('hidden');
+              toggleButton.setAttribute('aria-pressed', 'false');
+              toggleButton.setAttribute('aria-label', 'Show password');
+            }
           });
 
         // Forgot password

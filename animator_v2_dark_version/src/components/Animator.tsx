@@ -74,6 +74,13 @@ export interface AppState {
 const generateId = (): string =>
   `id_${Math.random().toString(36).substr(2, 9)}`;
 
+const formatPropertyName = (propertyKey: string): string => {
+  return propertyKey
+    .split(/(?=[A-Z])/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 /**
  * Solves for `t` in a cubic Bezier equation `x(t) = x_target`.
  * This is needed to find the Bezier curve parameter `u` for a given time progression `t_progress`.
@@ -1234,7 +1241,7 @@ const PropertyTrack: React.FC<{
   layerId: string;
   propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>;
   property: AnimatedProperty;
-  timelineInfo: { duration: number; zoom: number; trackWidth: number };
+  timelineInfo: { duration: number; zoom: number };
   selectedKeyframeInfo: SelectedKeyframeInfo | null;
   onKeyframeClick: (
     layerId: string,
@@ -1252,69 +1259,51 @@ const PropertyTrack: React.FC<{
     keyframeId: string,
     newTime: number,
   ) => void;
-}> = React.memo(
-  ({
-    layerId,
-    propertyKey,
-    property,
-    timelineInfo,
-    selectedKeyframeInfo,
-    onKeyframeClick,
-    onAddKeyframe,
-    onDragKeyframe,
-  }) => {
-    const { duration, zoom, trackWidth } = timelineInfo;
-    const msToPx = (ms: number) => (ms / 100) * zoom;
+}> = ({
+  layerId,
+  propertyKey,
+  property,
+  timelineInfo,
+  selectedKeyframeInfo,
+  onKeyframeClick,
+  onAddKeyframe,
+  onDragKeyframe,
+}) => {
+  const { duration, zoom } = timelineInfo;
+  const msToPx = (ms: number) => (ms / 100) * zoom;
 
-    const handleTrackDoubleClick = (
-      event: React.MouseEvent<HTMLDivElement>,
-    ) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const clickX = event.clientX - rect.left - 32; // Account for 32px offset alignment
-      const timeAtClick = Math.round((clickX / zoom) * 100);
-      if (timeAtClick >= 0 && timeAtClick <= duration) {
-        onAddKeyframe(layerId, propertyKey, timeAtClick);
-      }
-    };
+  const handleTrackDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const time = Math.round((x / zoom) * 100);
+    onAddKeyframe(layerId, propertyKey, time);
+  };
 
-    const formatPropertyName = (propertyKey: string): string => {
-      if (propertyKey === 'x' || propertyKey === 'y') {
-        return `${propertyKey} position`;
-      }
-      return propertyKey;
-    };
-
-    return (
-      <div className='flex items-center h-12 border-b border-white/10 hover:bg-white/5 transition-all duration-200'>
-        <div className='w-32 px-4 py-2 text-sm font-medium bg-white/5 border-r border-white/10 truncate self-stretch flex items-center text-gray-300'>
-          {formatPropertyName(propertyKey)}
-        </div>
-        <div
-          className='relative flex-1 h-full bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-200'
-          style={{ width: `${trackWidth}px` }}
-          onDoubleClick={handleTrackDoubleClick}
-          title='Double-click to add keyframe'>
-          {property.keyframes.map((kf) => (
-            <KeyframeMarker
-              key={kf.id}
-              keyframe={kf}
-              position={msToPx(kf.time) + 32}
-              isSelected={
-                selectedKeyframeInfo?.keyframeId === kf.id &&
-                selectedKeyframeInfo.propertyKey === propertyKey
-              }
-              onClick={() => onKeyframeClick(layerId, propertyKey, kf.id)}
-              onDrag={(newTime) =>
-                onDragKeyframe(layerId, propertyKey, kf.id, newTime)
-              }
-              timelineInfo={{ duration, zoom }}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  },
-);
+  return (
+    <div
+      className='relative h-8 border-b border-white/10 cursor-pointer'
+      style={{ width: `${msToPx(duration)}px` }}
+      onDoubleClick={handleTrackDoubleClick}>
+      {property.keyframes.map((keyframe) => (
+        <KeyframeMarker
+          key={keyframe.id}
+          keyframe={keyframe}
+          position={msToPx(keyframe.time)}
+          isSelected={
+            selectedKeyframeInfo?.layerId === layerId &&
+            selectedKeyframeInfo?.propertyKey === propertyKey &&
+            selectedKeyframeInfo?.keyframeId === keyframe.id
+          }
+          onClick={() => onKeyframeClick(layerId, propertyKey, keyframe.id)}
+          onDrag={(newTime) =>
+            onDragKeyframe(layerId, propertyKey, keyframe.id, newTime)
+          }
+          timelineInfo={timelineInfo}
+        />
+      ))}
+    </div>
+  );
+};
 
 /** Timeline Panel: Displays animation timeline, keyframes, and playback controls. */
 const TimelinePanel: React.FC<{
@@ -1357,7 +1346,7 @@ const TimelinePanel: React.FC<{
   const timelineRef = useRef<HTMLDivElement>(null);
   const selectedLayer = layers.find((l) => l.id === selectedLayerId);
 
-  const trackWidth = useMemo(
+  const timelineWidth = useMemo(
     () => (duration / 100) * timelineZoom,
     [duration, timelineZoom],
   );
@@ -1416,122 +1405,69 @@ const TimelinePanel: React.FC<{
             </>
           )}
         </button>
-
-        <div className='flex items-center gap-2'>
-          <button
-            onClick={() => onChangeDuration(Math.max(0.1, duration - 1000))}
-            className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-            <svg
-              className='w-4 h-4 text-gray-400 hover:text-white'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'>
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M20 12H4'
-              />
-            </svg>
-          </button>
+        <div className='flex items-center space-x-2'>
+          <span className='text-sm text-gray-300'>Duration:</span>
           <input
             type='number'
             value={duration}
-            onChange={(e) => {
-              const value = parseFloat(e.target.value);
-              if (!isNaN(value) && value >= 0.1) {
-                onChangeDuration(value);
-              }
-            }}
-            onBlur={(e) => {
-              const value = parseFloat(e.target.value);
-              if (!isNaN(value) && value >= 0.1) {
-                onChangeDuration(Number(value.toFixed(1)));
-              }
-            }}
-            className='w-20 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-            step='0.1'
-            min='0.1'
+            onChange={(e) => onChangeDuration(Number(e.target.value))}
+            className='w-20 px-2 py-1 bg-white/5 border border-white/10 rounded text-white'
           />
           <span className='text-sm text-gray-300'>ms</span>
-          <button
-            onClick={() => onChangeDuration(duration + 1000)}
-            className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-            <svg
-              className='w-4 h-4 text-gray-400 hover:text-white'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'>
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M12 4v16m8-8H4'
-              />
-            </svg>
-          </button>
         </div>
-
         <div className='flex items-center space-x-2'>
-          <label htmlFor='zoom' className='text-sm font-medium text-gray-300'>
-            Zoom:
-          </label>
+          <span className='text-sm text-gray-300'>Zoom:</span>
           <input
             type='range'
-            id='zoom'
-            min='5'
-            max='200'
+            min='1'
+            max='100'
             value={timelineZoom}
-            onChange={(e) => onChangeZoom(parseInt(e.target.value))}
-            className='w-32 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer slider'
+            onChange={(e) => onChangeZoom(Number(e.target.value))}
+            className='w-32'
           />
-          <span className='text-xs text-gray-400 min-w-max'>
-            {timelineZoom}px/100ms
-          </span>
-        </div>
-
-        {/* Time Indicator */}
-        <div className='px-4 py-2 bg-white/5 rounded-xl border border-white/10'>
-          <div className='text-sm font-medium text-white'>
-            {currentTime.toFixed(1)}ms / {duration.toFixed(1)}ms
-          </div>
         </div>
       </div>
 
-      {/* Timeline Content - Horizontally Scrollable */}
-      <div className='flex-1 overflow-x-auto scrollbar-thin'>
-        <div style={{ width: `${Math.max(trackWidth + 64, 800)}px` }}>
-          {/* Timeline Header (Ruler) */}
-          <div
-            ref={timelineRef}
-            className='relative h-16 bg-white/5 border-b border-white/10 cursor-pointer px-8 flex items-center'
-            onClick={handleTimelineScrub}>
-            {/* Current Time Position Marker */}
-            <div
-              className='absolute top-0 h-full w-0.5 bg-gradient-to-b from-blue-400 to-blue-600 z-20 shadow-lg'
-              style={{
-                left: `${(currentTime / 100) * timelineZoom + 32}px`,
-              }}>
-              {/* Playhead handle */}
-              <div className='absolute -top-1 -left-1.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-lg'></div>
-              {/* Current time label */}
-              <div className='absolute -top-8 -left-6 px-2 py-1 bg-blue-500 text-white text-xs rounded shadow-lg whitespace-nowrap'>
-                {(currentTime / 1000).toFixed(1)}s
-              </div>
-            </div>
+      {/* Timeline Content */}
+      <div className='flex-1 flex overflow-hidden'>
+        {/* Sticky Labels Section */}
+        <div className='w-32 flex-shrink-0 border-r border-white/10 bg-white/5'>
+          <div className='h-8 flex items-center px-3 text-sm font-medium text-gray-300 border-b border-white/10'>
+            Time
+          </div>
+          {selectedLayer && (
+            <>
+              {ANIMATABLE_PROPERTY_KEYS.map((propKey) => (
+                <div
+                  key={propKey}
+                  className='h-8 flex items-center px-3 text-sm text-gray-400 border-b border-white/10'>
+                  {formatPropertyName(propKey)}
+                </div>
+              ))}
+            </>
+          )}
+        </div>
 
-            {/* Seconds Markers */}
-            {timeMarkers.map((marker) => (
-              <div
-                key={marker.time}
-                className='absolute h-full top-0'
-                style={{ left: `${marker.position + 32}px` }}>
-                <div className='w-px h-3 bg-white/30'></div>
-                <span className='absolute text-xs text-gray-300 top-3 transform -translate-x-1/2 font-medium'>
-                  {marker.time / 1000}s
-                </span>
-              </div>
-            ))}
+        {/* Scrollable Timeline Section */}
+        <div className='flex-1 overflow-auto' ref={timelineRef}>
+          {/* Time Ruler */}
+          <div className='sticky top-0 z-10 bg-white/5 border-b border-white/10'>
+            <div
+              className='relative h-8 cursor-pointer'
+              style={{ width: `${timelineWidth}px` }}
+              onClick={handleTimelineScrub}>
+              {timeMarkers.map((marker) => (
+                <div
+                  key={marker.time}
+                  className='absolute h-full top-0'
+                  style={{ left: `${marker.position}px` }}>
+                  <div className='w-px h-3 bg-white/30'></div>
+                  <span className='absolute text-xs text-gray-300 top-3 transform -translate-x-1/2 font-medium'>
+                    {marker.time / 1000}s
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Property Tracks for selected layer */}
@@ -1548,7 +1484,10 @@ const TimelinePanel: React.FC<{
                     layerId={selectedLayer.id}
                     propertyKey={propKey}
                     property={property}
-                    timelineInfo={{ duration, zoom: timelineZoom, trackWidth }}
+                    timelineInfo={{
+                      duration,
+                      zoom: timelineZoom,
+                    }}
                     selectedKeyframeInfo={selectedKeyframeInfo}
                     onKeyframeClick={(layerId, propertyKey, keyframeId) =>
                       onSelectKeyframe({
@@ -1569,7 +1508,7 @@ const TimelinePanel: React.FC<{
             )}
             {/* Current Time Indicator Line for Property Tracks */}
             <div
-              className='absolute top-0 left-32 h-full w-1 bg-gradient-to-b from-red-400 to-red-600 z-20 shadow-lg pointer-events-none'
+              className='absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-red-400 to-red-600 z-20 shadow-lg pointer-events-none'
               style={{
                 transform: `translateX(${timeIndicatorPosition}px)`,
               }}

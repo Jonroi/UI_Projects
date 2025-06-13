@@ -235,12 +235,8 @@ const DEFAULT_TIMELINE_ZOOM = 50; // 50px per 100ms, so 1ms = 0.5px. 5000ms * 0.
 
 const createDefaultAnimatedProperty = (
   defaultValue: number,
-  initialValue?: number,
 ): AnimatedProperty => ({
-  keyframes:
-    initialValue !== undefined
-      ? [{ id: generateId(), time: 0, value: initialValue, easing: 'linear' }]
-      : [],
+  keyframes: [],
   defaultValue,
 });
 
@@ -269,13 +265,13 @@ const createNewLayer = (
   name,
   color,
   zIndex,
-  x: createDefaultAnimatedProperty(initialX, initialX),
-  y: createDefaultAnimatedProperty(initialY, initialY),
-  width: createDefaultAnimatedProperty(100, 100),
-  height: createDefaultAnimatedProperty(50, 50),
-  opacity: createDefaultAnimatedProperty(1, 1),
-  rotation: createDefaultAnimatedProperty(0, 0),
-  scale: createDefaultAnimatedProperty(1, 1),
+  x: createDefaultAnimatedProperty(initialX),
+  y: createDefaultAnimatedProperty(initialY),
+  width: createDefaultAnimatedProperty(100),
+  height: createDefaultAnimatedProperty(100),
+  opacity: createDefaultAnimatedProperty(1),
+  rotation: createDefaultAnimatedProperty(0),
+  scale: createDefaultAnimatedProperty(1),
 });
 
 const initialLayers: Layer[] = [
@@ -1558,7 +1554,7 @@ const TimelinePanel: React.FC<{
   return (
     <div className='flex flex-col h-full'>
       {/* Controls */}
-      <div className='p-4 flex items-center space-x-4 border-b border-white/10 bg-white/5 flex-shrink-0'>
+      <div className='p-4 flex items-center space-x-4 border-b border-white/10 bg-gradient-to-r from-slate-900/80 via-purple-900/80 to-slate-900/80 backdrop-blur-md flex-shrink-0'>
         <button
           onClick={onTogglePlay}
           className='px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 flex items-center space-x-2'>
@@ -1586,25 +1582,25 @@ const TimelinePanel: React.FC<{
             </>
           )}
         </button>
-        <div className='flex items-center space-x-2'>
-          <span className='text-sm text-gray-300'>Duration:</span>
+        <div className='flex items-center space-x-2 bg-white/5 rounded-lg px-3 py-2 border border-white/10'>
+          <span className='text-sm text-gray-300 font-medium'>Duration:</span>
           <input
             type='number'
             value={duration}
             onChange={(e) => onChangeDuration(Number(e.target.value))}
-            className='w-20 px-2 py-1 bg-white/5 border border-white/10 rounded text-white'
+            className='w-20 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
           />
-          <span className='text-sm text-gray-300'>ms</span>
+          <span className='text-sm text-gray-300 font-medium'>ms</span>
         </div>
-        <div className='flex items-center space-x-2'>
-          <span className='text-sm text-gray-300'>Zoom:</span>
+        <div className='flex items-center space-x-2 bg-white/5 rounded-lg px-3 py-2 border border-white/10'>
+          <span className='text-sm text-gray-300 font-medium'>Zoom:</span>
           <input
             type='range'
             min='1'
             max='100'
             value={timelineZoom}
             onChange={(e) => onChangeZoom(Number(e.target.value))}
-            className='w-32'
+            className='w-32 accent-purple-500'
           />
         </div>
       </div>
@@ -1613,7 +1609,7 @@ const TimelinePanel: React.FC<{
       <div className='flex-1 flex overflow-hidden'>
         {/* Sticky Labels Section */}
         <div className='w-32 flex-shrink-0 border-r border-white/10 bg-white/5'>
-          <div className='h-8 flex items-center px-3 text-sm font-medium text-gray-300 border-b border-white/10'>
+          <div className='h-7 flex items-center px-3 text-sm font-medium text-gray-300 border-b border-white/10'>
             Time
           </div>
           {selectedLayer && (
@@ -1621,7 +1617,7 @@ const TimelinePanel: React.FC<{
               {ANIMATABLE_PROPERTY_KEYS.map((propKey) => (
                 <div
                   key={propKey}
-                  className='h-8 flex items-center px-3 text-sm text-gray-400 border-b border-white/10'>
+                  className='h-7 flex items-center px-3 text-sm text-gray-400 border-b border-white/10'>
                   {formatPropertyName(propKey)}
                 </div>
               ))}
@@ -1630,11 +1626,13 @@ const TimelinePanel: React.FC<{
         </div>
 
         {/* Scrollable Timeline Section */}
-        <div className='flex-1 overflow-auto pl-4' ref={timelineRef}>
+        <div
+          className='flex-1 overflow-x-auto overflow-y-hidden pl-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-purple-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-purple-500/50'
+          ref={timelineRef}>
           {/* Time Ruler */}
-          <div className='sticky top-0 z-10 bg-white/5 border-b border-white/10'>
+          <div className='sticky top-0 z-10 bg-gradient-to-r from-slate-900/80 via-purple-900/80 to-slate-900/80 backdrop-blur-md border-b border-white/10'>
             <div
-              className='relative h-8 cursor-pointer'
+              className='relative h-7 cursor-pointer'
               style={{ width: `${timelineWidth}px` }}
               onClick={handleTimelineScrub}>
               {timeMarkers.map((marker) => (
@@ -1642,8 +1640,8 @@ const TimelinePanel: React.FC<{
                   key={marker.time}
                   className='absolute h-full top-0'
                   style={{ left: `${marker.position}px` }}>
-                  <div className='w-px h-3 bg-white/30'></div>
-                  <span className='absolute text-xs text-gray-300 top-3 transform -translate-x-1/2 font-medium'>
+                  <div className='w-px h-2 bg-white/30'></div>
+                  <span className='absolute text-xs text-gray-300 top-2 transform -translate-x-1/2 font-medium'>
                     {marker.time / 1000}s
                   </span>
                 </div>
@@ -1683,13 +1681,13 @@ const TimelinePanel: React.FC<{
                 );
               })
             ) : (
-              <div className='p-8 text-center text-gray-400'>
+              <div className='p-4 text-center text-gray-400'>
                 Select a layer to edit keyframes
               </div>
             )}
             {/* Current Time Indicator Line for Property Tracks */}
             <div
-              className='absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-red-400 to-red-600 z-20 shadow-lg pointer-events-none'
+              className='absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-red-400 to-red-600 z-30 shadow-lg pointer-events-none'
               style={{
                 transform: `translateX(${timeIndicatorPosition}px)`,
               }}
@@ -2413,26 +2411,42 @@ const App: React.FC = () => {
         layers: prev.layers.map((layer) => {
           if (layer.id === layerId) {
             const property = layer[propertyKey];
-            // Find keyframe at time 0
-            const kfIndex = property.keyframes.findIndex((kf) => kf.time === 0);
+            if (property.keyframes.length === 0) {
+              return {
+                ...layer,
+                [propertyKey]: {
+                  ...property,
+                  defaultValue: value,
+                },
+              };
+            }
+
+            const currentTime = prev.currentTime;
+            const kfIndex = property.keyframes.findIndex(
+              (kf) => kf.time === currentTime,
+            );
             let newKeyframes;
+
             if (kfIndex !== -1) {
-              // Update value of keyframe at time 0
               newKeyframes = property.keyframes.map((kf, i) =>
                 i === kfIndex ? { ...kf, value } : kf,
               );
             } else {
-              // Add a keyframe at time 0
               newKeyframes = [
-                { id: generateId(), time: 0, value, easing: 'linear' },
                 ...property.keyframes,
-              ];
+                {
+                  id: generateId(),
+                  time: currentTime,
+                  value,
+                  easing: 'linear',
+                },
+              ].sort((a, b) => a.time - b.time);
             }
+
             return {
               ...layer,
               [propertyKey]: {
                 ...property,
-                defaultValue: value,
                 keyframes: newKeyframes,
               },
             };

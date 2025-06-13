@@ -483,103 +483,63 @@ const LayerItem: React.FC<{
   onDelete: (layerId: string) => void;
   onMoveUp: (layerId: string) => void;
   onMoveDown: (layerId: string) => void;
-}> = ({ layer, isSelected, onSelect, onDelete, onMoveUp, onMoveDown }) => {
-  return (
-    <div
-      className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
-        isSelected
-          ? 'bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-400/50 shadow-lg'
-          : 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20'
-      }`}
-      onClick={() => onSelect(layer.id)}>
-      <div className='flex justify-between items-center'>
-        <div className='flex items-center space-x-3'>
-          <div
-            className='w-4 h-4 rounded-lg shadow-sm'
-            style={{ backgroundColor: layer.color }}
-          />
-          <div>
-            <span
-              className={`text-sm font-medium ${
-                isSelected ? 'text-white' : 'text-gray-200'
-              }`}>
-              {layer.name}
-            </span>
-            <div className='text-xs text-gray-400'>Z: {layer.zIndex}</div>
-          </div>
-        </div>
-        <div className='flex items-center space-x-1'>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveUp(layer.id);
-            }}
-            className='p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all duration-200'>
-            <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
-              <path
-                fillRule='evenodd'
-                d='M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z'
-                clipRule='evenodd'
-              />
-            </svg>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveDown(layer.id);
-            }}
-            className='p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all duration-200'>
-            <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
-              <path
-                fillRule='evenodd'
-                d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
-                clipRule='evenodd'
-              />
-            </svg>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(layer.id);
-            }}
-            className='p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all duration-200'>
-            <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
-              <path
-                fillRule='evenodd'
-                d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-                clipRule='evenodd'
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/** Panel for managing layers (add, remove, select, reorder). */
-const LayerPanel: React.FC<{
-  layers: Layer[];
-  selectedLayerId: string | null;
-  onSelectLayer: (layerId: string) => void;
-  onAddLayer: () => void;
-  onDeleteLayer: (layerId: string) => void;
-  onMoveLayer: (layerId: string, direction: 'up' | 'down') => void;
   onUpdateLayer: (
     layerId: string,
     propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
     value: number,
   ) => void;
+  onRenameLayer: (layerId: string, newName: string) => void;
 }> = ({
-  layers,
-  selectedLayerId,
-  onSelectLayer,
-  onAddLayer,
-  onDeleteLayer,
-  onMoveLayer,
+  layer,
+  isSelected,
+  onSelect,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
   onUpdateLayer,
+  onRenameLayer,
 }) => {
-  const selectedLayer = layers.find((l) => l.id === selectedLayerId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(layer.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(true);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditName(e.target.value);
+  };
+
+  const handleNameSubmit = () => {
+    if (editName.trim() !== '') {
+      onRenameLayer(layer.id, editName.trim());
+    } else {
+      setEditName(layer.name);
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleNameSubmit();
+    } else if (e.key === 'Escape') {
+      setEditName(layer.name);
+      setIsEditing(false);
+    }
+  };
+
+  const handleBlur = () => {
+    handleNameSubmit();
+  };
 
   const handleIncrement = (
     layerId: string,
@@ -600,7 +560,663 @@ const LayerPanel: React.FC<{
   };
 
   return (
-    <div className='space-y-4 pr-0.5'>
+    <div
+      className={`rounded-lg transition-all duration-300 ${
+        isSelected ? 'bg-white/10 hover:bg-white/15' : 'hover:bg-white/5'
+      }`}>
+      <div
+        className='flex items-center gap-2 p-2 cursor-pointer'
+        onClick={() => onSelect(layer.id)}>
+        <div
+          className='w-4 h-4 rounded-full'
+          style={{ backgroundColor: layer.color }}
+        />
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type='text'
+            value={editName}
+            onChange={handleNameChange}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            className='flex-1 px-1 py-0.5 bg-white/5 border border-white/10 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50'
+          />
+        ) : (
+          <div className='flex-1 flex items-center gap-1 group'>
+            <span
+              className='text-sm text-white/90'
+              onDoubleClick={handleDoubleClick}>
+              {layer.name}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+              }}
+              className='opacity-0 group-hover:opacity-50 hover:opacity-100 transition-opacity p-0.5'>
+              <svg
+                className='w-3 h-3'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+        <div className='flex items-center gap-1'>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveUp(layer.id);
+            }}
+            className='p-1 text-white/50 hover:text-white/90 transition-colors'>
+            <svg
+              className='w-4 h-4'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M5 15l7-7 7 7'
+              />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveDown(layer.id);
+            }}
+            className='p-1 text-white/50 hover:text-white/90 transition-colors'>
+            <svg
+              className='w-4 h-4'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M19 9l-7 7-7-7'
+              />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(layer.id);
+            }}
+            className='p-1 text-white/50 hover:text-red-400 transition-colors'>
+            <svg
+              className='w-4 h-4'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        className={`grid transition-all duration-300 ease-in-out ${
+          isSelected
+            ? 'grid-rows-[1fr] opacity-100'
+            : 'grid-rows-[0fr] opacity-0'
+        }`}>
+        <div className='overflow-hidden'>
+          <div className='px-2 pb-2'>
+            <div className='space-y-3 border-t border-white/10 pt-2'>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  X Position
+                </label>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={() =>
+                      handleDecrement(
+                        layer.id,
+                        'x',
+                        getAnimatedValueAtTime(layer.x, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M20 12H4'
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type='number'
+                    value={getAnimatedValueAtTime(layer.x, 0)}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'x', value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'x', Number(value.toFixed(1)));
+                      }
+                    }}
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  />
+                  <button
+                    onClick={() =>
+                      handleIncrement(
+                        layer.id,
+                        'x',
+                        getAnimatedValueAtTime(layer.x, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 4v16m8-8H4'
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Y Position
+                </label>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={() =>
+                      handleDecrement(
+                        layer.id,
+                        'y',
+                        getAnimatedValueAtTime(layer.y, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M20 12H4'
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type='number'
+                    value={getAnimatedValueAtTime(layer.y, 0)}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'y', value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'y', Number(value.toFixed(1)));
+                      }
+                    }}
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  />
+                  <button
+                    onClick={() =>
+                      handleIncrement(
+                        layer.id,
+                        'y',
+                        getAnimatedValueAtTime(layer.y, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 4v16m8-8H4'
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Width
+                </label>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={() =>
+                      handleDecrement(
+                        layer.id,
+                        'width',
+                        getAnimatedValueAtTime(layer.width, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M20 12H4'
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type='number'
+                    value={getAnimatedValueAtTime(layer.width, 0)}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'width', value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(
+                          layer.id,
+                          'width',
+                          Number(value.toFixed(1)),
+                        );
+                      }
+                    }}
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  />
+                  <button
+                    onClick={() =>
+                      handleIncrement(
+                        layer.id,
+                        'width',
+                        getAnimatedValueAtTime(layer.width, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 4v16m8-8H4'
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Height
+                </label>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={() =>
+                      handleDecrement(
+                        layer.id,
+                        'height',
+                        getAnimatedValueAtTime(layer.height, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M20 12H4'
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type='number'
+                    value={getAnimatedValueAtTime(layer.height, 0)}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'height', value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(
+                          layer.id,
+                          'height',
+                          Number(value.toFixed(1)),
+                        );
+                      }
+                    }}
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  />
+                  <button
+                    onClick={() =>
+                      handleIncrement(
+                        layer.id,
+                        'height',
+                        getAnimatedValueAtTime(layer.height, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 4v16m8-8H4'
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Opacity
+                </label>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={() =>
+                      handleDecrement(
+                        layer.id,
+                        'opacity',
+                        getAnimatedValueAtTime(layer.opacity, 0),
+                        0.1,
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M20 12H4'
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type='number'
+                    min='0'
+                    max='1'
+                    step='0.1'
+                    value={getAnimatedValueAtTime(layer.opacity, 0)}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'opacity', value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(
+                          layer.id,
+                          'opacity',
+                          Number(value.toFixed(1)),
+                        );
+                      }
+                    }}
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  />
+                  <button
+                    onClick={() =>
+                      handleIncrement(
+                        layer.id,
+                        'opacity',
+                        getAnimatedValueAtTime(layer.opacity, 0),
+                        0.1,
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 4v16m8-8H4'
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Rotation
+                </label>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={() =>
+                      handleDecrement(
+                        layer.id,
+                        'rotation',
+                        getAnimatedValueAtTime(layer.rotation, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M20 12H4'
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type='number'
+                    value={getAnimatedValueAtTime(layer.rotation, 0)}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'rotation', value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(
+                          layer.id,
+                          'rotation',
+                          Number(value.toFixed(1)),
+                        );
+                      }
+                    }}
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  />
+                  <button
+                    onClick={() =>
+                      handleIncrement(
+                        layer.id,
+                        'rotation',
+                        getAnimatedValueAtTime(layer.rotation, 0),
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 4v16m8-8H4'
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Scale
+                </label>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={() =>
+                      handleDecrement(
+                        layer.id,
+                        'scale',
+                        getAnimatedValueAtTime(layer.scale, 0),
+                        0.1,
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M20 12H4'
+                      />
+                    </svg>
+                  </button>
+                  <input
+                    type='number'
+                    min='0.1'
+                    step='0.1'
+                    value={getAnimatedValueAtTime(layer.scale, 0)}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(layer.id, 'scale', value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value)) {
+                        onUpdateLayer(
+                          layer.id,
+                          'scale',
+                          Number(value.toFixed(1)),
+                        );
+                      }
+                    }}
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  />
+                  <button
+                    onClick={() =>
+                      handleIncrement(
+                        layer.id,
+                        'scale',
+                        getAnimatedValueAtTime(layer.scale, 0),
+                        0.1,
+                      )
+                    }
+                    className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+                    <svg
+                      className='w-4 h-4 text-gray-400 hover:text-white'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 4v16m8-8H4'
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/** Panel for managing layers (add, remove, select, reorder). */
+const LayerPanel: React.FC<{
+  layers: Layer[];
+  selectedLayerId: string | null;
+  onSelectLayer: (layerId: string) => void;
+  onAddLayer: () => void;
+  onDeleteLayer: (layerId: string) => void;
+  onMoveLayer: (layerId: string, direction: 'up' | 'down') => void;
+  onUpdateLayer: (
+    layerId: string,
+    propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
+    value: number,
+  ) => void;
+  onRenameLayer: (layerId: string, newName: string) => void;
+}> = ({
+  layers,
+  selectedLayerId,
+  onSelectLayer,
+  onAddLayer,
+  onDeleteLayer,
+  onMoveLayer,
+  onUpdateLayer,
+  onRenameLayer,
+}) => {
+  return (
+    <div className='space-y-4 pr-4'>
       <div className='flex items-center justify-between'>
         <h2 className='text-lg font-semibold text-white/90'>Layers</h2>
         <button
@@ -631,526 +1247,11 @@ const LayerPanel: React.FC<{
             onDelete={onDeleteLayer}
             onMoveUp={() => onMoveLayer(layer.id, 'up')}
             onMoveDown={() => onMoveLayer(layer.id, 'down')}
+            onUpdateLayer={onUpdateLayer}
+            onRenameLayer={onRenameLayer}
           />
         ))}
       </div>
-
-      {selectedLayer && (
-        <div className='mt-6 p-4 bg-white/5 rounded-xl border border-white/10'>
-          <h3 className='text-sm font-medium text-white/70 mb-4'>
-            Layer Properties
-          </h3>
-          <div className='space-y-3'>
-            <div>
-              <label className='block text-xs text-white/50 mb-1'>
-                X Position
-              </label>
-              <div className='flex items-center gap-2'>
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      selectedLayer.id,
-                      'x',
-                      getAnimatedValueAtTime(selectedLayer.x, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M20 12H4'
-                    />
-                  </svg>
-                </button>
-                <input
-                  type='number'
-                  value={getAnimatedValueAtTime(selectedLayer.x, 0)}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(selectedLayer.id, 'x', value);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(
-                        selectedLayer.id,
-                        'x',
-                        Number(value.toFixed(1)),
-                      );
-                    }
-                  }}
-                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                />
-                <button
-                  onClick={() =>
-                    handleIncrement(
-                      selectedLayer.id,
-                      'x',
-                      getAnimatedValueAtTime(selectedLayer.x, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className='block text-xs text-white/50 mb-1'>
-                Y Position
-              </label>
-              <div className='flex items-center gap-2'>
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      selectedLayer.id,
-                      'y',
-                      getAnimatedValueAtTime(selectedLayer.y, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M20 12H4'
-                    />
-                  </svg>
-                </button>
-                <input
-                  type='number'
-                  value={getAnimatedValueAtTime(selectedLayer.y, 0)}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(selectedLayer.id, 'y', value);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(
-                        selectedLayer.id,
-                        'y',
-                        Number(value.toFixed(1)),
-                      );
-                    }
-                  }}
-                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                />
-                <button
-                  onClick={() =>
-                    handleIncrement(
-                      selectedLayer.id,
-                      'y',
-                      getAnimatedValueAtTime(selectedLayer.y, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className='block text-xs text-white/50 mb-1'>Width</label>
-              <div className='flex items-center gap-2'>
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      selectedLayer.id,
-                      'width',
-                      getAnimatedValueAtTime(selectedLayer.width, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M20 12H4'
-                    />
-                  </svg>
-                </button>
-                <input
-                  type='number'
-                  value={getAnimatedValueAtTime(selectedLayer.width, 0)}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(selectedLayer.id, 'width', value);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(
-                        selectedLayer.id,
-                        'width',
-                        Number(value.toFixed(1)),
-                      );
-                    }
-                  }}
-                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                />
-                <button
-                  onClick={() =>
-                    handleIncrement(
-                      selectedLayer.id,
-                      'width',
-                      getAnimatedValueAtTime(selectedLayer.width, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className='block text-xs text-white/50 mb-1'>Height</label>
-              <div className='flex items-center gap-2'>
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      selectedLayer.id,
-                      'height',
-                      getAnimatedValueAtTime(selectedLayer.height, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M20 12H4'
-                    />
-                  </svg>
-                </button>
-                <input
-                  type='number'
-                  value={getAnimatedValueAtTime(selectedLayer.height, 0)}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(selectedLayer.id, 'height', value);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(
-                        selectedLayer.id,
-                        'height',
-                        Number(value.toFixed(1)),
-                      );
-                    }
-                  }}
-                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                />
-                <button
-                  onClick={() =>
-                    handleIncrement(
-                      selectedLayer.id,
-                      'height',
-                      getAnimatedValueAtTime(selectedLayer.height, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className='block text-xs text-white/50 mb-1'>
-                Opacity
-              </label>
-              <div className='flex items-center gap-2'>
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      selectedLayer.id,
-                      'opacity',
-                      getAnimatedValueAtTime(selectedLayer.opacity, 0),
-                      0.1,
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M20 12H4'
-                    />
-                  </svg>
-                </button>
-                <input
-                  type='number'
-                  min='0'
-                  max='1'
-                  step='0.1'
-                  value={getAnimatedValueAtTime(selectedLayer.opacity, 0)}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(selectedLayer.id, 'opacity', value);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(
-                        selectedLayer.id,
-                        'opacity',
-                        Number(value.toFixed(1)),
-                      );
-                    }
-                  }}
-                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                />
-                <button
-                  onClick={() =>
-                    handleIncrement(
-                      selectedLayer.id,
-                      'opacity',
-                      getAnimatedValueAtTime(selectedLayer.opacity, 0),
-                      0.1,
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className='block text-xs text-white/50 mb-1'>
-                Rotation
-              </label>
-              <div className='flex items-center gap-2'>
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      selectedLayer.id,
-                      'rotation',
-                      getAnimatedValueAtTime(selectedLayer.rotation, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M20 12H4'
-                    />
-                  </svg>
-                </button>
-                <input
-                  type='number'
-                  value={getAnimatedValueAtTime(selectedLayer.rotation, 0)}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(selectedLayer.id, 'rotation', value);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(
-                        selectedLayer.id,
-                        'rotation',
-                        Number(value.toFixed(1)),
-                      );
-                    }
-                  }}
-                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                />
-                <button
-                  onClick={() =>
-                    handleIncrement(
-                      selectedLayer.id,
-                      'rotation',
-                      getAnimatedValueAtTime(selectedLayer.rotation, 0),
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className='block text-xs text-white/50 mb-1'>Scale</label>
-              <div className='flex items-center gap-2'>
-                <button
-                  onClick={() =>
-                    handleDecrement(
-                      selectedLayer.id,
-                      'scale',
-                      getAnimatedValueAtTime(selectedLayer.scale, 0),
-                      0.1,
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M20 12H4'
-                    />
-                  </svg>
-                </button>
-                <input
-                  type='number'
-                  min='0.1'
-                  step='0.1'
-                  value={getAnimatedValueAtTime(selectedLayer.scale, 0)}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(selectedLayer.id, 'scale', value);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      onUpdateLayer(
-                        selectedLayer.id,
-                        'scale',
-                        Number(value.toFixed(1)),
-                      );
-                    }
-                  }}
-                  className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                />
-                <button
-                  onClick={() =>
-                    handleIncrement(
-                      selectedLayer.id,
-                      'scale',
-                      getAnimatedValueAtTime(selectedLayer.scale, 0),
-                      0.1,
-                    )
-                  }
-                  className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
-                  <svg
-                    className='w-4 h-4 text-gray-400 hover:text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -2540,6 +2641,24 @@ const App: React.FC = () => {
     [],
   );
 
+  const handleLayerSelect = (layerId: string) => {
+    // If clicking the same layer, deselect it
+    if (appState.selectedLayerId === layerId) {
+      setAppState((prev) => ({ ...prev, selectedLayerId: null }));
+      return;
+    }
+    setAppState((prev) => ({ ...prev, selectedLayerId: layerId }));
+  };
+
+  const handleRenameLayer = (layerId: string, newName: string) => {
+    setAppState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) =>
+        layer.id === layerId ? { ...layer, name: newName } : layer,
+      ),
+    }));
+  };
+
   return (
     <div className='h-screen w-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden antialiased select-none'>
       {/* Top Bar - Modern glassmorphism header */}
@@ -2576,13 +2695,12 @@ const App: React.FC = () => {
               <LayerPanel
                 layers={appState.layers}
                 selectedLayerId={appState.selectedLayerId}
-                onSelectLayer={(layerId) =>
-                  setAppState((prev) => ({ ...prev, selectedLayerId: layerId }))
-                }
+                onSelectLayer={handleLayerSelect}
                 onAddLayer={handleAddLayer}
                 onDeleteLayer={handleDeleteLayer}
                 onMoveLayer={handleMoveLayer}
                 onUpdateLayer={handleUpdateLayer}
+                onRenameLayer={handleRenameLayer}
               />
               {appState.selectedKeyframeInfo && (
                 <div className='mt-6 pt-6 border-t border-white/10'>

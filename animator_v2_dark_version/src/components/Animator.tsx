@@ -484,62 +484,6 @@ const LayerItem: React.FC<{
   onUpdateLayerName,
   onUpdateLayerColor,
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartY, setDragStartY] = useState(0);
-  const [dragStartValue, setDragStartValue] = useState(0);
-  const [currentProperty, setCurrentProperty] = useState<
-    keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'> | null
-  >(null);
-
-  const handleMouseDown = (
-    e: React.MouseEvent<HTMLInputElement>,
-    propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
-    currentValue: number,
-  ) => {
-    setIsDragging(true);
-    setDragStartY(e.clientY);
-    setDragStartValue(currentValue);
-    setCurrentProperty(propertyKey);
-    e.preventDefault();
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging || !currentProperty) return;
-
-    const deltaY = dragStartY - e.clientY;
-    const step =
-      currentProperty === 'opacity' || currentProperty === 'scale' ? 0.1 : 1;
-    const newValue = dragStartValue + deltaY * step;
-
-    if (currentProperty === 'opacity') {
-      onUpdateLayer(
-        layer.id,
-        currentProperty,
-        Math.max(0, Math.min(1, newValue)),
-      );
-    } else if (currentProperty === 'scale') {
-      onUpdateLayer(layer.id, currentProperty, Math.max(0.1, newValue));
-    } else {
-      onUpdateLayer(layer.id, currentProperty, newValue);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setCurrentProperty(null);
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragStartY, dragStartValue, currentProperty]);
-
   const handleIncrement = (
     layerId: string,
     propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
@@ -710,14 +654,7 @@ const LayerItem: React.FC<{
                         onUpdateLayer(layer.id, 'x', value);
                       }
                     }}
-                    onMouseDown={(e) =>
-                      handleMouseDown(
-                        e,
-                        'x',
-                        getAnimatedValueAtTime(layer.x, 0),
-                      )
-                    }
-                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-ns-resize'
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   />
                   <button
                     onClick={() =>
@@ -779,14 +716,7 @@ const LayerItem: React.FC<{
                         onUpdateLayer(layer.id, 'y', value);
                       }
                     }}
-                    onMouseDown={(e) =>
-                      handleMouseDown(
-                        e,
-                        'y',
-                        getAnimatedValueAtTime(layer.y, 0),
-                      )
-                    }
-                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-ns-resize'
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   />
                   <button
                     onClick={() =>
@@ -848,14 +778,7 @@ const LayerItem: React.FC<{
                         onUpdateLayer(layer.id, 'width', value);
                       }
                     }}
-                    onMouseDown={(e) =>
-                      handleMouseDown(
-                        e,
-                        'width',
-                        getAnimatedValueAtTime(layer.width, 0),
-                      )
-                    }
-                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-ns-resize'
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   />
                   <button
                     onClick={() =>
@@ -917,14 +840,7 @@ const LayerItem: React.FC<{
                         onUpdateLayer(layer.id, 'height', value);
                       }
                     }}
-                    onMouseDown={(e) =>
-                      handleMouseDown(
-                        e,
-                        'height',
-                        getAnimatedValueAtTime(layer.height, 0),
-                      )
-                    }
-                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-ns-resize'
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   />
                   <button
                     onClick={() =>
@@ -961,6 +877,7 @@ const LayerItem: React.FC<{
                         layer.id,
                         'opacity',
                         getAnimatedValueAtTime(layer.opacity, 0),
+                        0.1,
                       )
                     }
                     className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
@@ -979,24 +896,18 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    min='0'
-                    max='1'
-                    step='0.1'
                     value={getAnimatedValueAtTime(layer.opacity, 0)}
                     onChange={(e) => {
                       const value = parseFloat(e.target.value);
                       if (!isNaN(value)) {
-                        onUpdateLayer(layer.id, 'opacity', value);
+                        onUpdateLayer(
+                          layer.id,
+                          'opacity',
+                          Math.max(0, Math.min(1, value)),
+                        );
                       }
                     }}
-                    onMouseDown={(e) =>
-                      handleMouseDown(
-                        e,
-                        'opacity',
-                        getAnimatedValueAtTime(layer.opacity, 0),
-                      )
-                    }
-                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-ns-resize'
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   />
                   <button
                     onClick={() =>
@@ -1004,6 +915,7 @@ const LayerItem: React.FC<{
                         layer.id,
                         'opacity',
                         getAnimatedValueAtTime(layer.opacity, 0),
+                        0.1,
                       )
                     }
                     className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
@@ -1058,14 +970,7 @@ const LayerItem: React.FC<{
                         onUpdateLayer(layer.id, 'rotation', value);
                       }
                     }}
-                    onMouseDown={(e) =>
-                      handleMouseDown(
-                        e,
-                        'rotation',
-                        getAnimatedValueAtTime(layer.rotation, 0),
-                      )
-                    }
-                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-ns-resize'
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   />
                   <button
                     onClick={() =>
@@ -1102,6 +1007,7 @@ const LayerItem: React.FC<{
                         layer.id,
                         'scale',
                         getAnimatedValueAtTime(layer.scale, 0),
+                        0.1,
                       )
                     }
                     className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
@@ -1124,17 +1030,10 @@ const LayerItem: React.FC<{
                     onChange={(e) => {
                       const value = parseFloat(e.target.value);
                       if (!isNaN(value)) {
-                        onUpdateLayer(layer.id, 'scale', value);
+                        onUpdateLayer(layer.id, 'scale', Math.max(0.1, value));
                       }
                     }}
-                    onMouseDown={(e) =>
-                      handleMouseDown(
-                        e,
-                        'scale',
-                        getAnimatedValueAtTime(layer.scale, 0),
-                      )
-                    }
-                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-ns-resize'
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   />
                   <button
                     onClick={() =>
@@ -1142,6 +1041,7 @@ const LayerItem: React.FC<{
                         layer.id,
                         'scale',
                         getAnimatedValueAtTime(layer.scale, 0),
+                        0.1,
                       )
                     }
                     className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>

@@ -494,6 +494,54 @@ const LayerItem: React.FC<{
   onUpdateLayerName,
   onUpdateLayerColor,
 }) => {
+  const [xInput, setXInput] = useState(
+    getAnimatedValueAtTime(layer.x, 0).toString(),
+  );
+  const [yInput, setYInput] = useState(
+    getAnimatedValueAtTime(layer.y, 0).toString(),
+  );
+  const [widthInput, setWidthInput] = useState(
+    getAnimatedValueAtTime(layer.width, 0).toString(),
+  );
+  const [heightInput, setHeightInput] = useState(
+    getAnimatedValueAtTime(layer.height, 0).toString(),
+  );
+  const [opacityInput, setOpacityInput] = useState(
+    getAnimatedValueAtTime(layer.opacity, 0).toString(),
+  );
+  const [rotationInput, setRotationInput] = useState(
+    getAnimatedValueAtTime(layer.rotation, 0).toString(),
+  );
+  const [scaleInput, setScaleInput] = useState(
+    getAnimatedValueAtTime(layer.scale, 0).toString(),
+  );
+
+  useEffect(() => {
+    setXInput(Number(getAnimatedValueAtTime(layer.x, 0)).toFixed(1));
+  }, [layer.x]);
+  useEffect(() => {
+    setYInput(Number(getAnimatedValueAtTime(layer.y, 0)).toFixed(1));
+  }, [layer.y]);
+  useEffect(() => {
+    setWidthInput(Number(getAnimatedValueAtTime(layer.width, 0)).toFixed(1));
+  }, [layer.width]);
+  useEffect(() => {
+    setHeightInput(Number(getAnimatedValueAtTime(layer.height, 0)).toFixed(1));
+  }, [layer.height]);
+  useEffect(() => {
+    setOpacityInput(
+      Number(getAnimatedValueAtTime(layer.opacity, 0)).toFixed(1),
+    );
+  }, [layer.opacity]);
+  useEffect(() => {
+    setRotationInput(
+      Number(getAnimatedValueAtTime(layer.rotation, 0)).toFixed(1),
+    );
+  }, [layer.rotation]);
+  useEffect(() => {
+    setScaleInput(Number(getAnimatedValueAtTime(layer.scale, 0)).toFixed(1));
+  }, [layer.scale]);
+
   const handleIncrement = (
     layerId: string,
     propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
@@ -657,11 +705,28 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    value={getAnimatedValueAtTime(layer.x, 0)}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                    value={xInput}
+                    onChange={(e) => setXInput(e.target.value)}
+                    onBlur={() => {
+                      const value = parseFloat(xInput);
                       if (!isNaN(value)) {
                         onUpdateLayer(layer.id, 'x', value);
+                      } else {
+                        setXInput(
+                          getAnimatedValueAtTime(layer.x, 0).toString(),
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = parseFloat(xInput);
+                        if (!isNaN(value)) {
+                          onUpdateLayer(layer.id, 'x', value);
+                        } else {
+                          setXInput(
+                            getAnimatedValueAtTime(layer.x, 0).toString(),
+                          );
+                        }
                       }
                     }}
                     className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -719,11 +784,28 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    value={getAnimatedValueAtTime(layer.y, 0)}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                    value={yInput}
+                    onChange={(e) => setYInput(e.target.value)}
+                    onBlur={() => {
+                      const value = parseFloat(yInput);
                       if (!isNaN(value)) {
                         onUpdateLayer(layer.id, 'y', value);
+                      } else {
+                        setYInput(
+                          getAnimatedValueAtTime(layer.y, 0).toString(),
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = parseFloat(yInput);
+                        if (!isNaN(value)) {
+                          onUpdateLayer(layer.id, 'y', value);
+                        } else {
+                          setYInput(
+                            getAnimatedValueAtTime(layer.y, 0).toString(),
+                          );
+                        }
                       }
                     }}
                     className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -781,11 +863,28 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    value={getAnimatedValueAtTime(layer.width, 0)}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                    value={widthInput}
+                    onChange={(e) => setWidthInput(e.target.value)}
+                    onBlur={() => {
+                      const value = parseFloat(widthInput);
                       if (!isNaN(value)) {
                         onUpdateLayer(layer.id, 'width', value);
+                      } else {
+                        setWidthInput(
+                          getAnimatedValueAtTime(layer.width, 0).toString(),
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = parseFloat(widthInput);
+                        if (!isNaN(value)) {
+                          onUpdateLayer(layer.id, 'width', value);
+                        } else {
+                          setWidthInput(
+                            getAnimatedValueAtTime(layer.width, 0).toString(),
+                          );
+                        }
                       }
                     }}
                     className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -843,11 +942,28 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    value={getAnimatedValueAtTime(layer.height, 0)}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                    value={heightInput}
+                    onChange={(e) => setHeightInput(e.target.value)}
+                    onBlur={() => {
+                      const value = parseFloat(heightInput);
                       if (!isNaN(value)) {
                         onUpdateLayer(layer.id, 'height', value);
+                      } else {
+                        setHeightInput(
+                          getAnimatedValueAtTime(layer.height, 0).toString(),
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = parseFloat(heightInput);
+                        if (!isNaN(value)) {
+                          onUpdateLayer(layer.id, 'height', value);
+                        } else {
+                          setHeightInput(
+                            getAnimatedValueAtTime(layer.height, 0).toString(),
+                          );
+                        }
                       }
                     }}
                     className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -906,15 +1022,36 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    value={getAnimatedValueAtTime(layer.opacity, 0)}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                    value={opacityInput}
+                    onChange={(e) => setOpacityInput(e.target.value)}
+                    onBlur={() => {
+                      const value = parseFloat(opacityInput);
                       if (!isNaN(value)) {
                         onUpdateLayer(
                           layer.id,
                           'opacity',
                           Math.max(0, Math.min(1, value)),
                         );
+                      } else {
+                        setOpacityInput(
+                          getAnimatedValueAtTime(layer.opacity, 0).toString(),
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = parseFloat(opacityInput);
+                        if (!isNaN(value)) {
+                          onUpdateLayer(
+                            layer.id,
+                            'opacity',
+                            Math.max(0, Math.min(1, value)),
+                          );
+                        } else {
+                          setOpacityInput(
+                            getAnimatedValueAtTime(layer.opacity, 0).toString(),
+                          );
+                        }
                       }
                     }}
                     className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -973,11 +1110,31 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    value={getAnimatedValueAtTime(layer.rotation, 0)}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                    value={rotationInput}
+                    onChange={(e) => setRotationInput(e.target.value)}
+                    onBlur={() => {
+                      const value = parseFloat(rotationInput);
                       if (!isNaN(value)) {
                         onUpdateLayer(layer.id, 'rotation', value);
+                      } else {
+                        setRotationInput(
+                          getAnimatedValueAtTime(layer.rotation, 0).toString(),
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = parseFloat(rotationInput);
+                        if (!isNaN(value)) {
+                          onUpdateLayer(layer.id, 'rotation', value);
+                        } else {
+                          setRotationInput(
+                            getAnimatedValueAtTime(
+                              layer.rotation,
+                              0,
+                            ).toString(),
+                          );
+                        }
                       }
                     }}
                     className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -1036,11 +1193,32 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    value={getAnimatedValueAtTime(layer.scale, 0)}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                    value={scaleInput}
+                    onChange={(e) => setScaleInput(e.target.value)}
+                    onBlur={() => {
+                      const value = parseFloat(scaleInput);
                       if (!isNaN(value)) {
                         onUpdateLayer(layer.id, 'scale', Math.max(0.1, value));
+                      } else {
+                        setScaleInput(
+                          getAnimatedValueAtTime(layer.scale, 0).toString(),
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = parseFloat(scaleInput);
+                        if (!isNaN(value)) {
+                          onUpdateLayer(
+                            layer.id,
+                            'scale',
+                            Math.max(0.1, value),
+                          );
+                        } else {
+                          setScaleInput(
+                            getAnimatedValueAtTime(layer.scale, 0).toString(),
+                          );
+                        }
                       }
                     }}
                     className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -2202,17 +2380,29 @@ const App: React.FC = () => {
         ...prev,
         layers: prev.layers.map((layer) => {
           if (layer.id === layerId) {
-            const updatedProperty = {
-              ...layer[propertyKey],
-              defaultValue: Math.round(value),
-              keyframes: layer[propertyKey].keyframes.map((kf) => ({
-                ...kf,
-                value: Math.round(kf.value),
-              })),
-            };
+            const property = layer[propertyKey];
+            // Find keyframe at time 0
+            const kfIndex = property.keyframes.findIndex((kf) => kf.time === 0);
+            let newKeyframes;
+            if (kfIndex !== -1) {
+              // Update value of keyframe at time 0
+              newKeyframes = property.keyframes.map((kf, i) =>
+                i === kfIndex ? { ...kf, value } : kf,
+              );
+            } else {
+              // Add a keyframe at time 0
+              newKeyframes = [
+                { id: generateId(), time: 0, value, easing: 'linear' },
+                ...property.keyframes,
+              ];
+            }
             return {
               ...layer,
-              [propertyKey]: updatedProperty,
+              [propertyKey]: {
+                ...property,
+                defaultValue: value,
+                keyframes: newKeyframes,
+              },
             };
           }
           return layer;

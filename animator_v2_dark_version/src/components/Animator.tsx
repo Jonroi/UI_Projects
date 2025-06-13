@@ -2643,11 +2643,7 @@ const App: React.FC = () => {
             Animation Studio
           </h1>
         </div>
-        <div className='ml-auto flex items-center space-x-4'>
-          <div className='px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-medium border border-green-500/30'>
-            Thesis Project
-          </div>
-        </div>
+        <div className='ml-auto flex items-center space-x-4'></div>
       </div>
 
       <div className='flex-1 flex flex-col overflow-hidden'>

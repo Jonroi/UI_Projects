@@ -2182,7 +2182,20 @@ const App: React.FC = () => {
           value: newLayer.x.defaultValue,
           easing: 'linear',
         },
+        {
+          id: generateId(),
+          time: 2500,
+          value: newLayer.x.defaultValue + 100,
+          easing: 'ease-in-out',
+        },
+        {
+          id: generateId(),
+          time: 5000,
+          value: newLayer.x.defaultValue,
+          easing: 'ease-in-out',
+        },
       ];
+
       newLayer.y.keyframes = [
         {
           id: generateId(),
@@ -2190,7 +2203,20 @@ const App: React.FC = () => {
           value: newLayer.y.defaultValue,
           easing: 'linear',
         },
+        {
+          id: generateId(),
+          time: 2500,
+          value: newLayer.y.defaultValue + 50,
+          easing: 'ease-in-out',
+        },
+        {
+          id: generateId(),
+          time: 5000,
+          value: newLayer.y.defaultValue,
+          easing: 'ease-in-out',
+        },
       ];
+
       newLayer.width.keyframes = [
         {
           id: generateId(),
@@ -2198,7 +2224,20 @@ const App: React.FC = () => {
           value: newLayer.width.defaultValue,
           easing: 'linear',
         },
+        {
+          id: generateId(),
+          time: 2500,
+          value: newLayer.width.defaultValue * 1.5,
+          easing: 'ease-in-out',
+        },
+        {
+          id: generateId(),
+          time: 5000,
+          value: newLayer.width.defaultValue,
+          easing: 'ease-in-out',
+        },
       ];
+
       newLayer.height.keyframes = [
         {
           id: generateId(),
@@ -2206,7 +2245,20 @@ const App: React.FC = () => {
           value: newLayer.height.defaultValue,
           easing: 'linear',
         },
+        {
+          id: generateId(),
+          time: 2500,
+          value: newLayer.height.defaultValue * 1.5,
+          easing: 'ease-in-out',
+        },
+        {
+          id: generateId(),
+          time: 5000,
+          value: newLayer.height.defaultValue,
+          easing: 'ease-in-out',
+        },
       ];
+
       newLayer.opacity.keyframes = [
         {
           id: generateId(),
@@ -2214,7 +2266,26 @@ const App: React.FC = () => {
           value: newLayer.opacity.defaultValue,
           easing: 'linear',
         },
+        {
+          id: generateId(),
+          time: 1250,
+          value: 0.5,
+          easing: 'ease-in-out',
+        },
+        {
+          id: generateId(),
+          time: 3750,
+          value: 0.5,
+          easing: 'ease-in-out',
+        },
+        {
+          id: generateId(),
+          time: 5000,
+          value: newLayer.opacity.defaultValue,
+          easing: 'ease-in-out',
+        },
       ];
+
       newLayer.rotation.keyframes = [
         {
           id: generateId(),
@@ -2222,13 +2293,32 @@ const App: React.FC = () => {
           value: newLayer.rotation.defaultValue,
           easing: 'linear',
         },
+        {
+          id: generateId(),
+          time: 5000,
+          value: 360,
+          easing: 'linear',
+        },
       ];
+
       newLayer.scale.keyframes = [
         {
           id: generateId(),
           time: 0,
           value: newLayer.scale.defaultValue,
           easing: 'linear',
+        },
+        {
+          id: generateId(),
+          time: 2500,
+          value: 1.5,
+          easing: 'ease-in-out',
+        },
+        {
+          id: generateId(),
+          time: 5000,
+          value: newLayer.scale.defaultValue,
+          easing: 'ease-in-out',
         },
       ];
 
@@ -2370,33 +2460,34 @@ const App: React.FC = () => {
       propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
       time: number,
     ) => {
-      setAppState((prev) => {
-        const newLayers = prev.layers.map((layer) => {
+      setAppState((prev) => ({
+        ...prev,
+        layers: prev.layers.map((layer) => {
           if (layer.id === layerId) {
-            const propToUpdate = layer[propertyKey] as AnimatedProperty;
-            // Calculate value at this time if adding in between, or use nearest keyframe value. For simplicity, use current value.
-            const currentValue = getAnimatedValueAtTime(propToUpdate, time);
-            const newKeyframe: Keyframe = {
-              id: generateId(),
-              time,
-              value: currentValue,
-              easing: 'linear',
-            };
-
-            const updatedKeyframes = [
-              ...propToUpdate.keyframes,
-              newKeyframe,
-            ].sort((a, b) => a.time - b.time); // Ensure sorted
-
+            const property = layer[propertyKey];
+            const currentValue = Math.round(
+              getAnimatedValueAtTime(property, time),
+            );
+            const keyframes = [
+              ...property.keyframes,
+              {
+                id: generateId(),
+                time: Math.round(time),
+                value: currentValue,
+                easing: 'linear',
+              },
+            ].sort((a, b) => a.time - b.time);
             return {
               ...layer,
-              [propertyKey]: { ...propToUpdate, keyframes: updatedKeyframes },
+              [propertyKey]: {
+                ...property,
+                keyframes,
+              },
             };
           }
           return layer;
-        });
-        return { ...prev, layers: newLayers };
-      });
+        }),
+      }));
     },
     [],
   );
@@ -2404,75 +2495,33 @@ const App: React.FC = () => {
   const handleUpdateKeyframe = useCallback(
     (
       layerId: string,
-      propertyKeyStr: string, // This is coming as string from component
+      propertyKey: string,
       keyframeId: string,
       newTime: number,
       newValue: number,
       newEasing: EasingFunction,
     ) => {
-      const propertyKey = propertyKeyStr as keyof Omit<
-        Layer,
-        'id' | 'name' | 'color' | 'zIndex'
-      >;
-
-      setAppState((prev) => {
-        const newLayers = prev.layers.map((layer) => {
-          if (layer.id === layerId) {
-            const propToUpdate = layer[propertyKey] as AnimatedProperty;
-            const updatedKeyframes = propToUpdate.keyframes
-              .map((kf) =>
-                kf.id === keyframeId
-                  ? { ...kf, time: newTime, value: newValue, easing: newEasing }
-                  : kf,
-              )
-              .sort((a, b) => a.time - b.time); // Re-sort after time change
-            return {
-              ...layer,
-              [propertyKey]: { ...propToUpdate, keyframes: updatedKeyframes },
-            };
-          }
-          return layer;
-        });
-        return { ...prev, layers: newLayers };
-      });
-    },
-    [],
-  );
-
-  const handleUpdateLayer = useCallback(
-    (
-      layerId: string,
-      propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
-      value: number,
-    ) => {
       setAppState((prev) => ({
         ...prev,
         layers: prev.layers.map((layer) => {
           if (layer.id === layerId) {
-            // Update the property's default value
-            const updatedProperty = {
-              ...layer[propertyKey],
-              defaultValue: Number(value.toFixed(1)),
-            };
-
-            // If there's a keyframe at time 0, update it too
-            const keyframes = layer[propertyKey].keyframes.map((kf) => {
-              if (kf.time === 0) {
-                return { ...kf, value: Number(value.toFixed(1)) };
-              }
-              return { ...kf, value: Number(kf.value.toFixed(1)) };
-            });
-
-            // If no keyframe at time 0, add one
-            if (!keyframes.some((kf) => kf.time === 0)) {
-              keyframes.unshift({
-                id: generateId(),
-                time: 0,
-                value: Number(value.toFixed(1)),
-                easing: 'linear',
-              });
-            }
-
+            const updatedProperty =
+              layer[
+                propertyKey as keyof Omit<
+                  Layer,
+                  'id' | 'name' | 'color' | 'zIndex'
+                >
+              ];
+            const keyframes = updatedProperty.keyframes.map((kf) =>
+              kf.id === keyframeId
+                ? {
+                    ...kf,
+                    time: Math.round(newTime),
+                    value: Math.round(newValue),
+                    easing: newEasing,
+                  }
+                : kf,
+            );
             return {
               ...layer,
               [propertyKey]: {
@@ -2488,12 +2537,48 @@ const App: React.FC = () => {
     [],
   );
 
+  const handleUpdateLayer = useCallback(
+    (
+      layerId: string,
+      propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
+      value: number,
+    ) => {
+      setAppState((prev) => ({
+        ...prev,
+        layers: prev.layers.map((layer) => {
+          if (layer.id === layerId) {
+            const updatedProperty = {
+              ...layer[propertyKey],
+              defaultValue: Math.round(value),
+              keyframes: layer[propertyKey].keyframes.map((kf) => ({
+                ...kf,
+                value: Math.round(kf.value),
+              })),
+            };
+            return {
+              ...layer,
+              [propertyKey]: updatedProperty,
+            };
+          }
+          return layer;
+        }),
+      }));
+    },
+    [],
+  );
+
   const handleUpdateLayerPosition = useCallback(
     (layerId: string, x: number, y: number) => {
       setAppState((prev) => ({
         ...prev,
         layers: prev.layers.map((layer) => {
           if (layer.id === layerId) {
+            // Calculate the offset from the current position
+            const currentX = getAnimatedValueAtTime(layer.x, prev.currentTime);
+            const currentY = getAnimatedValueAtTime(layer.y, prev.currentTime);
+            const offsetX = x - currentX;
+            const offsetY = y - currentY;
+
             return {
               ...layer,
               x: {
@@ -2501,7 +2586,7 @@ const App: React.FC = () => {
                 defaultValue: x,
                 keyframes: layer.x.keyframes.map((kf) => ({
                   ...kf,
-                  value: kf.time === 0 ? x : kf.value,
+                  value: kf.value + offsetX,
                 })),
               },
               y: {
@@ -2509,7 +2594,7 @@ const App: React.FC = () => {
                 defaultValue: y,
                 keyframes: layer.y.keyframes.map((kf) => ({
                   ...kf,
-                  value: kf.time === 0 ? y : kf.value,
+                  value: kf.value + offsetY,
                 })),
               },
             };

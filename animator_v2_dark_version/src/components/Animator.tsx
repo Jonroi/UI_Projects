@@ -1277,10 +1277,17 @@ const PropertyTrack: React.FC<{
       }
     };
 
+    const formatPropertyName = (propertyKey: string): string => {
+      if (propertyKey === 'x' || propertyKey === 'y') {
+        return `${propertyKey} position`;
+      }
+      return propertyKey;
+    };
+
     return (
       <div className='flex items-center h-12 border-b border-white/10 hover:bg-white/5 transition-all duration-200'>
         <div className='w-32 px-4 py-2 text-sm font-medium bg-white/5 border-r border-white/10 truncate self-stretch flex items-center text-gray-300'>
-          {propertyKey}
+          {formatPropertyName(propertyKey)}
         </div>
         <div
           className='relative flex-1 h-full bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-200'

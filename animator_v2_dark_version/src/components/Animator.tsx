@@ -1279,8 +1279,8 @@ const LayerPanel: React.FC<{
   onUpdateLayerColor,
 }) => {
   return (
-    <div className='space-y-4 pr-4'>
-      <div className='flex items-center justify-between'>
+    <div className='flex flex-col h-full'>
+      <div className='flex items-center justify-between mb-4'>
         <h2 className='text-lg font-semibold text-white/90'>Layers</h2>
         <button
           onClick={onAddLayer}
@@ -1300,21 +1300,23 @@ const LayerPanel: React.FC<{
         </button>
       </div>
 
-      <div className='space-y-2'>
-        {layers.map((layer) => (
-          <LayerItem
-            key={layer.id}
-            layer={layer}
-            isSelected={layer.id === selectedLayerId}
-            onSelect={onSelectLayer}
-            onDelete={onDeleteLayer}
-            onMoveUp={() => onMoveLayer(layer.id, 'up')}
-            onMoveDown={() => onMoveLayer(layer.id, 'down')}
-            onUpdateLayer={onUpdateLayer}
-            onUpdateLayerName={onUpdateLayerName}
-            onUpdateLayerColor={onUpdateLayerColor}
-          />
-        ))}
+      <div className='flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-purple-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-purple-500/50'>
+        <div className='space-y-2 pr-2'>
+          {layers.map((layer) => (
+            <LayerItem
+              key={layer.id}
+              layer={layer}
+              isSelected={layer.id === selectedLayerId}
+              onSelect={onSelectLayer}
+              onDelete={onDeleteLayer}
+              onMoveUp={() => onMoveLayer(layer.id, 'up')}
+              onMoveDown={() => onMoveLayer(layer.id, 'down')}
+              onUpdateLayer={onUpdateLayer}
+              onUpdateLayerName={onUpdateLayerName}
+              onUpdateLayerColor={onUpdateLayerColor}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

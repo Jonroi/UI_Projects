@@ -180,9 +180,8 @@ const getAnimatedValueAtTime = (
     return defaultValue;
   }
 
-  // Keyframes should be sorted by time. Assume they are for performance.
-  // If not, sort them: const sortedKeyframes = [...keyframes].sort((a, b) => a.time - b.time);
-  const sortedKeyframes = keyframes;
+  // Sort keyframes by time to ensure correct order
+  const sortedKeyframes = [...keyframes].sort((a, b) => a.time - b.time);
 
   if (time <= sortedKeyframes[0].time) {
     return sortedKeyframes[0].value;
@@ -205,7 +204,7 @@ const getAnimatedValueAtTime = (
   }
 
   if (prevKeyframe && nextKeyframe) {
-    if (prevKeyframe.time === nextKeyframe.time) return prevKeyframe.value; // Should not happen with distinct keyframes
+    if (prevKeyframe.time === nextKeyframe.time) return prevKeyframe.value;
 
     const timeProgress =
       (time - prevKeyframe.time) / (nextKeyframe.time - prevKeyframe.time);
@@ -216,7 +215,6 @@ const getAnimatedValueAtTime = (
     );
   }
 
-  // Fallback, though should be covered by checks above if keyframes exist
   return defaultValue;
 };
 
@@ -1199,7 +1197,7 @@ const ExportModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 bg-transparent flex items-center justify-center z-50 p-4'>
+    <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
       <div className='bg-gray-800 rounded-lg shadow-2xl border border-gray-600 w-full max-w-4xl max-h-[90vh] flex flex-col'>
         {/* Header */}
         <div className='flex items-center justify-between p-4 border-b border-gray-600'>

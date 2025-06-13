@@ -14,6 +14,15 @@ export type EasingFunction =
   | 'ease-in'
   | 'ease-out'
   | 'ease-in-out'
+  | 'easeInQuad'
+  | 'easeOutQuad'
+  | 'easeInOutQuad'
+  | 'easeInCubic'
+  | 'easeOutCubic'
+  | 'easeInOutCubic'
+  | 'easeInQuart'
+  | 'easeOutQuart'
+  | 'easeInOutQuart'
   | [number, number, number, number];
 
 /** Represents a single keyframe for an animatable property. */
@@ -149,29 +158,47 @@ const applyEasing = (t_progress: number, easing: EasingFunction): number => {
   if (t_progress <= 0) return 0;
   if (t_progress >= 1) return 1;
 
-  if (typeof easing === 'string') {
-    switch (easing) {
-      case 'linear':
-        return t_progress;
-      case 'ease-in':
-        return t_progress * t_progress * t_progress; // Cubic
-      case 'ease-out':
-        return 1 - Math.pow(1 - t_progress, 3); // Cubic
-      case 'ease-in-out':
-        return t_progress < 0.5
-          ? 4 * t_progress * t_progress * t_progress
-          : 1 - Math.pow(-2 * t_progress + 2, 3) / 2; // Cubic
-      default:
-        return t_progress;
-    }
-  } else if (Array.isArray(easing) && easing.length === 4) {
-    const [x1, y1, x2, y2] = easing;
-    // Check for common linear case which doesn't need solving
-    if (x1 === y1 && x2 === y2) return t_progress;
-    const u = solveCubicBezierParameter(x1, x2, t_progress);
-    return calculateCubicBezierY(y1, y2, u);
+  if (Array.isArray(easing)) {
+    return calculateCubicBezierY(
+      easing[1],
+      easing[3],
+      solveCubicBezierParameter(easing[0], easing[2], t_progress),
+    );
   }
-  return t_progress; // Fallback
+
+  switch (easing) {
+    case 'linear':
+      return t_progress;
+    case 'ease-in':
+    case 'easeInQuad':
+      return t_progress * t_progress;
+    case 'ease-out':
+    case 'easeOutQuad':
+      return t_progress * (2 - t_progress);
+    case 'ease-in-out':
+    case 'easeInOutQuad':
+      return t_progress < 0.5
+        ? 2 * t_progress * t_progress
+        : -1 + (4 - 2 * t_progress) * t_progress;
+    case 'easeInCubic':
+      return t_progress * t_progress * t_progress;
+    case 'easeOutCubic':
+      return --t_progress * t_progress * t_progress + 1;
+    case 'easeInOutCubic':
+      return t_progress < 0.5
+        ? 4 * t_progress * t_progress * t_progress
+        : (t_progress - 1) * (2 * t_progress - 2) * (2 * t_progress - 2) + 1;
+    case 'easeInQuart':
+      return t_progress * t_progress * t_progress * t_progress;
+    case 'easeOutQuart':
+      return 1 - --t_progress * t_progress * t_progress * t_progress;
+    case 'easeInOutQuart':
+      return t_progress < 0.5
+        ? 8 * t_progress * t_progress * t_progress * t_progress
+        : 1 - 8 * --t_progress * t_progress * t_progress * t_progress;
+    default:
+      return t_progress;
+  }
 };
 
 /**
@@ -368,96 +395,138 @@ const KeyframeEditor: React.FC<{
   ) => void;
   onClearSelection: () => void;
 }> = ({ selectedKeyframeInfo, layers, onUpdateKeyframe, onDeleteKeyframe }) => {
-  const [time, setTime] = useState<number>(0);
-  const [easing, setEasing] = useState<EasingFunction>('linear');
+  const [timeInput, setTimeInput] = useState('');
+  const [valueInput, setValueInput] = useState('');
+  const [easingType, setEasingType] = useState<EasingFunction>('linear');
+  const [bezierPoints, setBezierPoints] = useState<
+    [number, number, number, number]
+  >([0.25, 0.1, 0.25, 1]);
 
   useEffect(() => {
     if (selectedKeyframeInfo) {
-      const { layerId, propertyKey, keyframeId } = selectedKeyframeInfo;
-      const layer = layers.find((l) => l.id === layerId);
-      const property = layer
-        ? (layer[propertyKey as keyof Layer] as AnimatedProperty)
-        : null;
-      const keyframe = property?.keyframes.find((kf) => kf.id === keyframeId);
-
-      if (keyframe) {
-        setTime(keyframe.time);
-        setEasing(keyframe.easing);
+      const layer = layers.find((l) => l.id === selectedKeyframeInfo.layerId);
+      if (layer) {
+        const property = layer[selectedKeyframeInfo.propertyKey];
+        const keyframe = property.keyframes.find(
+          (kf) => kf.id === selectedKeyframeInfo.keyframeId,
+        );
+        if (keyframe) {
+          setTimeInput(keyframe.time.toString());
+          setValueInput(keyframe.value.toString());
+          setEasingType(keyframe.easing);
+          if (Array.isArray(keyframe.easing)) {
+            setBezierPoints(keyframe.easing);
+          }
+        }
       }
     }
   }, [selectedKeyframeInfo, layers]);
 
   const handleSave = () => {
     if (selectedKeyframeInfo) {
-      const { layerId, propertyKey, keyframeId } = selectedKeyframeInfo;
-      const layer = layers.find((l) => l.id === layerId);
-      const property = layer
-        ? (layer[propertyKey as keyof Layer] as AnimatedProperty)
-        : null;
-      const keyframe = property?.keyframes.find((kf) => kf.id === keyframeId);
+      onUpdateKeyframe(
+        selectedKeyframeInfo.layerId,
+        selectedKeyframeInfo.propertyKey,
+        selectedKeyframeInfo.keyframeId,
+        parseFloat(timeInput),
+        parseFloat(valueInput),
+        easingType,
+      );
+    }
+  };
 
-      if (keyframe) {
-        onUpdateKeyframe(
-          layerId,
-          propertyKey,
-          keyframeId,
-          time,
-          keyframe.value,
-          easing,
-        );
-      }
+  const handleDelete = () => {
+    if (selectedKeyframeInfo) {
+      onDeleteKeyframe(
+        selectedKeyframeInfo.layerId,
+        selectedKeyframeInfo.propertyKey,
+        selectedKeyframeInfo.keyframeId,
+      );
     }
   };
 
   if (!selectedKeyframeInfo) {
-    return (
-      <div className='p-4 text-center text-white/50'>
-        Select a keyframe to edit its properties
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className='p-4 space-y-4'>
-      <div>
-        <label className='block text-xs text-white/50 mb-1'>Time (ms)</label>
-        <input
-          type='number'
-          value={time}
-          onChange={(e) => setTime(parseFloat(e.target.value))}
-          className='w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-blue-500/50'
-        />
+    <div className='p-4 bg-white/5 rounded-lg'>
+      <div className='grid grid-cols-2 gap-4'>
+        <div>
+          <label className='block text-sm text-white/70 mb-1'>Time (ms)</label>
+          <input
+            type='number'
+            value={timeInput}
+            onChange={(e) => setTimeInput(e.target.value)}
+            className='w-full px-2 py-1 bg-white/5 border border-white/10 rounded'
+          />
+        </div>
+        <div>
+          <label className='block text-sm text-white/70 mb-1'>Value</label>
+          <input
+            type='number'
+            value={valueInput}
+            onChange={(e) => setValueInput(e.target.value)}
+            className='w-full px-2 py-1 bg-white/5 border border-white/10 rounded'
+          />
+        </div>
       </div>
-      <div>
-        <label className='block text-xs text-white/50 mb-1'>Easing</label>
+
+      <div className='mt-4'>
+        <label className='block text-sm text-white/70 mb-1'>Easing</label>
         <select
-          value={typeof easing === 'string' ? easing : 'custom'}
-          onChange={(e) => setEasing(e.target.value as EasingFunction)}
-          className='w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/90 focus:outline-none focus:border-blue-500/50'>
+          value={typeof easingType === 'string' ? easingType : 'custom'}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === 'custom') {
+              setEasingType(bezierPoints);
+            } else {
+              setEasingType(value as EasingFunction);
+            }
+          }}
+          className='w-full px-2 py-1 bg-white/5 border border-white/10 rounded'>
           <option value='linear'>Linear</option>
+          <option value='ease-in'>Ease In</option>
+          <option value='ease-out'>Ease Out</option>
+          <option value='ease-in-out'>Ease In Out</option>
           <option value='easeInQuad'>Ease In Quad</option>
           <option value='easeOutQuad'>Ease Out Quad</option>
           <option value='easeInOutQuad'>Ease In Out Quad</option>
+          <option value='easeInCubic'>Ease In Cubic</option>
+          <option value='easeOutCubic'>Ease Out Cubic</option>
+          <option value='easeInOutCubic'>Ease In Out Cubic</option>
+          <option value='easeInQuart'>Ease In Quart</option>
+          <option value='easeOutQuart'>Ease Out Quart</option>
+          <option value='easeInOutQuart'>Ease In Out Quart</option>
           <option value='custom'>Custom Bezier</option>
         </select>
       </div>
-      <div className='flex gap-2'>
+
+      {typeof easingType === 'object' && (
+        <div className='mt-4'>
+          <label className='block text-sm text-white/70 mb-1'>
+            Bezier Curve
+          </label>
+          <BezierCurveEditor
+            value={bezierPoints}
+            onChange={(points) => {
+              setBezierPoints(points);
+              setEasingType(points);
+            }}
+          />
+        </div>
+      )}
+
+      <div className='mt-4 flex justify-end gap-2'>
         <button
-          onClick={handleSave}
-          className='flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded-lg transition-colors'>
-          Save Changes
+          onClick={handleDelete}
+          className='px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30'>
+          Delete
         </button>
         <button
-          onClick={() =>
-            selectedKeyframeInfo &&
-            onDeleteKeyframe(
-              selectedKeyframeInfo.layerId,
-              selectedKeyframeInfo.propertyKey,
-              selectedKeyframeInfo.keyframeId,
-            )
-          }
-          className='flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg transition-colors'>
-          Delete Keyframe
+          onClick={handleSave}
+          className='px-3 py-1 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30'>
+          Save
         </button>
       </div>
     </div>
@@ -1950,6 +2019,140 @@ const ExportModal: React.FC<{
           </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+/** Bezier Curve Editor Component */
+const BezierCurveEditor: React.FC<{
+  value: [number, number, number, number];
+  onChange: (value: [number, number, number, number]) => void;
+}> = ({ value, onChange }) => {
+  const [isDragging, setIsDragging] = useState<'p1' | 'p2' | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const drawCurve = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const pos = (canvas.width / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(pos, 0);
+      ctx.lineTo(pos, canvas.height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, pos);
+      ctx.lineTo(canvas.width, pos);
+      ctx.stroke();
+    }
+
+    // Draw curve
+    ctx.strokeStyle = 'rgba(139, 92, 246, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    ctx.bezierCurveTo(
+      value[0] * canvas.width,
+      (1 - value[1]) * canvas.height,
+      value[2] * canvas.width,
+      (1 - value[3]) * canvas.height,
+      canvas.width,
+      0,
+    );
+    ctx.stroke();
+
+    // Draw control points
+    const drawPoint = (x: number, y: number, color: string) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    drawPoint(
+      value[0] * canvas.width,
+      (1 - value[1]) * canvas.height,
+      '#8B5CF6',
+    );
+    drawPoint(
+      value[2] * canvas.width,
+      (1 - value[3]) * canvas.height,
+      '#8B5CF6',
+    );
+  }, [value]);
+
+  useEffect(() => {
+    drawCurve();
+  }, [drawCurve]);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = 1 - (e.clientY - rect.top) / rect.height;
+
+    // Check which point is being dragged
+    const p1Dist = Math.hypot(x - value[0], y - value[1]);
+    const p2Dist = Math.hypot(x - value[2], y - value[3]);
+
+    if (p1Dist < p2Dist && p1Dist < 0.1) {
+      setIsDragging('p1');
+    } else if (p2Dist < 0.1) {
+      setIsDragging('p2');
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDragging) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const y = Math.max(
+      0,
+      Math.min(1, 1 - (e.clientY - rect.top) / rect.height),
+    );
+
+    if (isDragging === 'p1') {
+      onChange([x, y, value[2], value[3]]);
+    } else {
+      onChange([value[0], value[1], x, y]);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(null);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className='relative w-48 h-48 bg-white/5 rounded-lg overflow-hidden'
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}>
+      <canvas
+        ref={canvasRef}
+        width={192}
+        height={192}
+        className='w-full h-full'
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+      />
     </div>
   );
 };

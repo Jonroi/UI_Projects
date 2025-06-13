@@ -987,24 +987,59 @@ const TimelinePanel: React.FC<{
           )}
         </button>
 
-        <div className='flex items-center space-x-2'>
-          <label
-            htmlFor='duration'
-            className='text-sm font-medium text-gray-300'>
-            Duration:
-          </label>
+        <div className='flex items-center gap-2'>
+          <button
+            onClick={() => onChangeDuration(Math.max(0.1, duration - 1000))}
+            className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+            <svg
+              className='w-4 h-4 text-gray-400 hover:text-white'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M20 12H4'
+              />
+            </svg>
+          </button>
           <input
             type='number'
-            id='duration'
             value={duration}
-            onChange={(e) =>
-              onChangeDuration(
-                Math.max(100, parseInt(e.target.value) || duration),
-              )
-            }
-            className='w-24 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200'
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              if (!isNaN(value) && value >= 0.1) {
+                onChangeDuration(value);
+              }
+            }}
+            onBlur={(e) => {
+              const value = parseFloat(e.target.value);
+              if (!isNaN(value) && value >= 0.1) {
+                onChangeDuration(Number(value.toFixed(1)));
+              }
+            }}
+            className='w-20 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+            step='0.1'
+            min='0.1'
           />
-          <span className='text-xs text-gray-400'>ms</span>
+          <span className='text-sm text-gray-300'>ms</span>
+          <button
+            onClick={() => onChangeDuration(duration + 1000)}
+            className='p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors'>
+            <svg
+              className='w-4 h-4 text-gray-400 hover:text-white'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 4v16m8-8H4'
+              />
+            </svg>
+          </button>
         </div>
 
         <div className='flex items-center space-x-2'>
@@ -1028,7 +1063,7 @@ const TimelinePanel: React.FC<{
         {/* Time Indicator */}
         <div className='px-4 py-2 bg-white/5 rounded-xl border border-white/10'>
           <div className='text-sm font-medium text-white'>
-            {Math.round(currentTime)}ms / {duration}ms
+            {currentTime.toFixed(1)}ms / {duration.toFixed(1)}ms
           </div>
         </div>
       </div>
@@ -1202,7 +1237,7 @@ const ExportModal: React.FC<{
 
   return (
     <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50'>
-      <div className='bg-gray-800 rounded-xl shadow-2xl w-[800px] max-h-[80vh] flex flex-col border border-white/10'>
+      <div className='bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-slate-900/80 backdrop-blur-md rounded-xl shadow-2xl w-[800px] max-h-[80vh] flex flex-col border border-white/10'>
         <div className='flex items-center justify-between p-4 border-b border-white/10'>
           <h2 className='text-xl font-semibold text-white'>{title}</h2>
           <button
@@ -1222,8 +1257,8 @@ const ExportModal: React.FC<{
             </svg>
           </button>
         </div>
-        <div className='flex-1 overflow-y-auto p-4'>
-          <pre className='bg-gray-900/50 rounded-lg p-4 text-sm text-gray-300 font-mono overflow-x-auto'>
+        <div className='flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20'>
+          <pre className='bg-gray-900/50 rounded-lg p-4 text-sm text-gray-300 font-mono overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20'>
             {content}
           </pre>
         </div>

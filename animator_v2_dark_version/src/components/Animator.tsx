@@ -488,7 +488,8 @@ const LayerItem: React.FC<{
     propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
     value: number,
   ) => void;
-  onRenameLayer: (layerId: string, newName: string) => void;
+  onUpdateLayerName: (layerId: string, name: string) => void;
+  onUpdateLayerColor: (layerId: string, color: string) => void;
 }> = ({
   layer,
   isSelected,
@@ -497,50 +498,9 @@ const LayerItem: React.FC<{
   onMoveUp,
   onMoveDown,
   onUpdateLayer,
-  onRenameLayer,
+  onUpdateLayerName,
+  onUpdateLayerColor,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(layer.name);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsEditing(true);
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditName(e.target.value);
-  };
-
-  const handleNameSubmit = () => {
-    if (editName.trim() !== '') {
-      onRenameLayer(layer.id, editName.trim());
-    } else {
-      setEditName(layer.name);
-    }
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleNameSubmit();
-    } else if (e.key === 'Escape') {
-      setEditName(layer.name);
-      setIsEditing(false);
-    }
-  };
-
-  const handleBlur = () => {
-    handleNameSubmit();
-  };
-
   const handleIncrement = (
     layerId: string,
     propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
@@ -571,44 +531,7 @@ const LayerItem: React.FC<{
           className='w-4 h-4 rounded-full'
           style={{ backgroundColor: layer.color }}
         />
-        {isEditing ? (
-          <input
-            ref={inputRef}
-            type='text'
-            value={editName}
-            onChange={handleNameChange}
-            onKeyDown={handleKeyDown}
-            onBlur={handleBlur}
-            className='flex-1 px-1 py-0.5 bg-white/5 border border-white/10 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50'
-          />
-        ) : (
-          <div className='flex-1 flex items-center gap-1 group'>
-            <span
-              className='text-sm text-white/90'
-              onDoubleClick={handleDoubleClick}>
-              {layer.name}
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing(true);
-              }}
-              className='opacity-0 group-hover:opacity-50 hover:opacity-100 transition-opacity p-0.5'>
-              <svg
-                className='w-3 h-3'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'>
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-                />
-              </svg>
-            </button>
-          </div>
-        )}
+        <span className='flex-1 text-sm text-white/90'>{layer.name}</span>
         <div className='flex items-center gap-1'>
           <button
             onClick={(e) => {
@@ -678,6 +601,40 @@ const LayerItem: React.FC<{
         <div className='overflow-hidden'>
           <div className='px-2 pb-2'>
             <div className='space-y-3 border-t border-white/10 pt-2'>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Layer Name
+                </label>
+                <input
+                  type='text'
+                  value={layer.name}
+                  onChange={(e) => onUpdateLayerName(layer.id, e.target.value)}
+                  className='w-full px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200'
+                />
+              </div>
+              <div>
+                <label className='block text-xs text-white/50 mb-1'>
+                  Layer Color
+                </label>
+                <div className='flex items-center gap-2'>
+                  <input
+                    type='color'
+                    value={layer.color}
+                    onChange={(e) =>
+                      onUpdateLayerColor(layer.id, e.target.value)
+                    }
+                    className='w-8 h-8 p-0 bg-transparent border-0 rounded cursor-pointer [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch]:rounded'
+                  />
+                  <input
+                    type='text'
+                    value={layer.color}
+                    onChange={(e) =>
+                      onUpdateLayerColor(layer.id, e.target.value)
+                    }
+                    className='flex-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200'
+                  />
+                </div>
+              </div>
               <div>
                 <label className='block text-xs text-white/50 mb-1'>
                   X Position
@@ -1137,8 +1094,6 @@ const LayerItem: React.FC<{
                   </button>
                   <input
                     type='number'
-                    min='0.1'
-                    step='0.1'
                     value={getAnimatedValueAtTime(layer.scale, 0)}
                     onChange={(e) => {
                       const value = parseFloat(e.target.value);
@@ -1204,7 +1159,8 @@ const LayerPanel: React.FC<{
     propertyKey: keyof Omit<Layer, 'id' | 'name' | 'color' | 'zIndex'>,
     value: number,
   ) => void;
-  onRenameLayer: (layerId: string, newName: string) => void;
+  onUpdateLayerName: (layerId: string, name: string) => void;
+  onUpdateLayerColor: (layerId: string, color: string) => void;
 }> = ({
   layers,
   selectedLayerId,
@@ -1213,7 +1169,8 @@ const LayerPanel: React.FC<{
   onDeleteLayer,
   onMoveLayer,
   onUpdateLayer,
-  onRenameLayer,
+  onUpdateLayerName,
+  onUpdateLayerColor,
 }) => {
   return (
     <div className='space-y-4 pr-4'>
@@ -1248,7 +1205,8 @@ const LayerPanel: React.FC<{
             onMoveUp={() => onMoveLayer(layer.id, 'up')}
             onMoveDown={() => onMoveLayer(layer.id, 'down')}
             onUpdateLayer={onUpdateLayer}
-            onRenameLayer={onRenameLayer}
+            onUpdateLayerName={onUpdateLayerName}
+            onUpdateLayerColor={onUpdateLayerColor}
           />
         ))}
       </div>
@@ -2572,15 +2530,15 @@ const App: React.FC = () => {
             // Update the property's default value
             const updatedProperty = {
               ...layer[propertyKey],
-              defaultValue: value,
+              defaultValue: Number(value.toFixed(1)),
             };
 
             // If there's a keyframe at time 0, update it too
             const keyframes = layer[propertyKey].keyframes.map((kf) => {
               if (kf.time === 0) {
-                return { ...kf, value };
+                return { ...kf, value: Number(value.toFixed(1)) };
               }
-              return kf;
+              return { ...kf, value: Number(kf.value.toFixed(1)) };
             });
 
             // If no keyframe at time 0, add one
@@ -2588,7 +2546,7 @@ const App: React.FC = () => {
               keyframes.unshift({
                 id: generateId(),
                 time: 0,
-                value,
+                value: Number(value.toFixed(1)),
                 easing: 'linear',
               });
             }
@@ -2650,15 +2608,6 @@ const App: React.FC = () => {
     setAppState((prev) => ({ ...prev, selectedLayerId: layerId }));
   };
 
-  const handleRenameLayer = (layerId: string, newName: string) => {
-    setAppState((prev) => ({
-      ...prev,
-      layers: prev.layers.map((layer) =>
-        layer.id === layerId ? { ...layer, name: newName } : layer,
-      ),
-    }));
-  };
-
   return (
     <div className='h-screen w-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden antialiased select-none'>
       {/* Top Bar - Modern glassmorphism header */}
@@ -2700,7 +2649,22 @@ const App: React.FC = () => {
                 onDeleteLayer={handleDeleteLayer}
                 onMoveLayer={handleMoveLayer}
                 onUpdateLayer={handleUpdateLayer}
-                onRenameLayer={handleRenameLayer}
+                onUpdateLayerName={(layerId, name) =>
+                  setAppState((prev) => ({
+                    ...prev,
+                    layers: prev.layers.map((layer) =>
+                      layer.id === layerId ? { ...layer, name } : layer,
+                    ),
+                  }))
+                }
+                onUpdateLayerColor={(layerId, color) =>
+                  setAppState((prev) => ({
+                    ...prev,
+                    layers: prev.layers.map((layer) =>
+                      layer.id === layerId ? { ...layer, color } : layer,
+                    ),
+                  }))
+                }
               />
               {appState.selectedKeyframeInfo && (
                 <div className='mt-6 pt-6 border-t border-white/10'>

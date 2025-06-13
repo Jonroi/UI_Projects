@@ -1895,7 +1895,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className='h-screen w-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden antialiased'>
+    <div className='h-screen w-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden antialiased select-none'>
       {/* Top Bar - Modern glassmorphism header */}
       <div className='h-16 bg-white/5 backdrop-blur-xl border-b border-white/10 flex items-center px-6 shadow-lg'>
         <div className='flex items-center space-x-3'>

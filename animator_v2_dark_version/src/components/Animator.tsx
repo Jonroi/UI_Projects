@@ -1725,8 +1725,30 @@ const PreviewCanvas: React.FC<{
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw background: gradient matching UI theme
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#1a1a2e');
+    grad.addColorStop(1, '#16213e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw grid (every 50px)
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let x = 50; x < canvas.width; x += 50) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let y = 50; y < canvas.height; y += 50) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+    ctx.restore();
 
     // Draw each layer
     layers.forEach((layer) => {
@@ -1839,19 +1861,29 @@ const PreviewCanvas: React.FC<{
     setDraggingLayer(null);
   };
 
+  // Wrap canvas in a relative div for overlay label
   return (
-    <canvas
-      ref={canvasRef}
-      width={canvasSize.width}
-      height={canvasSize.height}
-      className={`bg-transparent ${
-        draggingLayer ? 'cursor-grabbing' : hoveredLayer ? 'cursor-grab' : ''
-      }`}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    />
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <canvas
+        ref={canvasRef}
+        width={canvasSize.width}
+        height={canvasSize.height}
+        style={{
+          border: '2px solid rgba(255,255,255,0.1)',
+          borderRadius: '12px',
+          background: 'transparent',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+          display: 'block',
+        }}
+        className={
+          draggingLayer ? 'cursor-grabbing' : hoveredLayer ? 'cursor-grab' : ''
+        }
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      />
+    </div>
   );
 };
 
@@ -2722,15 +2754,13 @@ const App: React.FC = () => {
           {/* Center Panel: Preview Area */}
           <div
             ref={previewAreaRef}
-            className='flex-1 bg-gradient-to-br from-slate-800/30 to-slate-900/30 flex items-center justify-center relative'>
-            <div className='w-full h-full max-w-4xl max-h-full bg-slate-800/20 rounded-2xl p-2 shadow-2xl flex items-center justify-center'>
-              <PreviewCanvas
-                layers={appState.layers}
-                currentTime={appState.currentTime}
-                canvasSize={canvasSize}
-                onLayerPositionChange={handleUpdateLayerPosition}
-              />
-            </div>
+            className='flex-1 flex items-center justify-center relative'>
+            <PreviewCanvas
+              layers={appState.layers}
+              currentTime={appState.currentTime}
+              canvasSize={canvasSize}
+              onLayerPositionChange={handleUpdateLayerPosition}
+            />
           </div>
         </div>
 

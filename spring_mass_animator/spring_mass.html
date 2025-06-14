@@ -283,25 +283,33 @@
                   type="button"
                   class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
                   data-k="100"
-                  data-c="0.05"
+                  data-c="0.15"
                   data-g="9.8">
                   <i class="fas fa-globe mr-2"></i>Default Physics
                 </button>
                 <button
                   type="button"
                   class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
-                  data-k="300"
-                  data-c="0.02"
+                  data-k="150"
+                  data-c="0.1"
                   data-g="0">
                   <i class="fas fa-rocket mr-2"></i>Microgravity
                 </button>
                 <button
                   type="button"
                   class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
-                  data-k="50"
-                  data-c="0.3"
-                  data-g="20">
+                  data-k="200"
+                  data-c="0.25"
+                  data-g="15">
                   <i class="fas fa-weight-hanging mr-2"></i>Heavy Damping
+                </button>
+                <button
+                  type="button"
+                  class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
+                  data-k="80"
+                  data-c="0.05"
+                  data-g="5">
+                  <i class="fas fa-feather mr-2"></i>Light System
                 </button>
               </div>
             </div>
@@ -359,6 +367,7 @@
                 <li>
                   <strong>Double-click</strong> mass to fix/unfix position
                 </li>
+                <li><strong>Right-click</strong> on a spring to delete it</li>
                 <li>
                   Springs: <span class="text-blue-600">Blue = Compressed</span>,
                   <span class="text-red-600">Red = Extended</span>
@@ -729,8 +738,8 @@
       function step(dt) {
         if (isPaused) return;
 
-        // Limit dt to prevent large jumps
-        dt = Math.min(dt, 0.016); // Cap at ~60fps equivalent
+        // Increase base timestep for faster animation
+        dt = Math.min(dt * 2, 0.032); // Doubled the timestep, capped at ~30fps equivalent
 
         // Reset forces
         for (let m of masses) {
@@ -751,9 +760,9 @@
           // Limit extension to prevent extreme forces
           ext = Math.max(-100, Math.min(100, ext));
 
-          // Spring force with stability
-          let fx = (s.k * ext * dx) / dist;
-          let fy = (s.k * ext * dy) / dist;
+          // Spring force with stability and increased strength
+          let fx = ((s.k * ext * dx) / dist) * 1.5; // Increased spring force
+          let fy = ((s.k * ext * dy) / dist) * 1.5;
 
           // Damping force with stability
           let dvx = m2.vx - m1.vx;
@@ -794,11 +803,11 @@
         // Apply gravity and air resistance with stability
         for (let m of masses) {
           if (!m.fixed) {
-            // Apply gravity with proper scaling and limits
-            m.fy += Math.min(1000, m.m * params.gravity * 0.1);
+            // Apply gravity with increased effect
+            m.fy += m.m * params.gravity * 1.5; // Increased gravity effect
             // Apply air resistance with limits
-            m.fx += Math.max(-100, Math.min(100, -params.damping * m.vx * 0.5));
-            m.fy += Math.max(-100, Math.min(100, -params.damping * m.vy * 0.5));
+            m.fx += Math.max(-100, Math.min(100, -params.damping * m.vx));
+            m.fy += Math.max(-100, Math.min(100, -params.damping * m.vy));
           }
         }
 
@@ -814,11 +823,11 @@
             m.vy += ay * dt;
 
             // Apply velocity damping for stability
-            m.vx *= 0.99;
-            m.vy *= 0.99;
+            m.vx *= 0.98; // Reduced damping for more movement
+            m.vy *= 0.98;
 
             // Limit maximum velocity
-            const maxVel = 500;
+            const maxVel = 1500; // Increased from 1000
             m.vx = Math.max(-maxVel, Math.min(maxVel, m.vx));
             m.vy = Math.max(-maxVel, Math.min(maxVel, m.vy));
 
@@ -829,19 +838,19 @@
             // Boundary collision with improved response
             if (m.x < 12) {
               m.x = 12;
-              m.vx = Math.abs(m.vx) * 0.4;
+              m.vx = Math.abs(m.vx) * 0.5; // Increased bounce
             }
             if (m.x > canvas.width - 12) {
               m.x = canvas.width - 12;
-              m.vx = -Math.abs(m.vx) * 0.4;
+              m.vx = -Math.abs(m.vx) * 0.5;
             }
             if (m.y > canvas.height - 12) {
               m.y = canvas.height - 12;
-              m.vy = -Math.abs(m.vy) * 0.4;
+              m.vy = -Math.abs(m.vy) * 0.5;
             }
             if (m.y < 12) {
               m.y = 12;
-              m.vy = Math.abs(m.vy) * 0.4;
+              m.vy = Math.abs(m.vy) * 0.5;
             }
           }
         }
@@ -853,14 +862,14 @@
         // Kinetic energy
         for (let m of masses) {
           KE += 0.5 * m.m * (m.vx ** 2 + m.vy ** 2);
-          PE += m.m * params.gravity * m.y * 0.1; // Scale potential energy
+          PE += m.m * params.gravity * m.y * 1.5; // Adjusted for new gravity scaling
         }
 
         // Spring energy
         for (let s of springs) {
           let d = distance(s.m1, s.m2);
           let ext = d - s.restLength;
-          PE += 0.5 * s.k * ext ** 2;
+          PE += 0.5 * s.k * ext ** 2 * 1.5; // Adjusted for new spring scaling
         }
 
         // Store energy data
@@ -1156,6 +1165,43 @@
 
         window.addEventListener('resize', handleResize);
         handleResize();
+      });
+
+      function findSpringAt(x, y) {
+        for (let s of springs) {
+          let m1 = s.m1,
+            m2 = s.m2;
+          let dx = m2.x - m1.x;
+          let dy = m2.y - m1.y;
+          let dist = Math.sqrt(dx * dx + dy * dy);
+
+          // Calculate distance from point to line segment
+          let t = ((x - m1.x) * dx + (y - m1.y) * dy) / (dx * dx + dy * dy);
+          t = Math.max(0, Math.min(1, t));
+
+          let closestX = m1.x + t * dx;
+          let closestY = m1.y + t * dy;
+
+          let distance = Math.hypot(x - closestX, y - closestY);
+
+          if (distance < 10) {
+            // Click threshold for springs
+            return s;
+          }
+        }
+        return null;
+      }
+
+      // Add right-click handler for spring deletion
+      canvas.addEventListener('contextmenu', (e) => {
+        e.preventDefault(); // Prevent default context menu
+        const mouse = getMousePos(e);
+        const foundSpring = findSpringAt(mouse.x, mouse.y);
+
+        if (foundSpring) {
+          // Remove the spring
+          springs = springs.filter((s) => s !== foundSpring);
+        }
       });
     </script>
   </body>

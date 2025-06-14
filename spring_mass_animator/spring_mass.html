@@ -321,32 +321,45 @@
                   class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
                   data-k="100"
                   data-c="0.15"
-                  data-g="9.8">
-                  <i class="fas fa-globe mr-2"></i>Default Physics
+                  data-g="9.8"
+                  data-m="1.0">
+                  <i class="fas fa-globe mr-2"></i>Standard Configuration
                 </button>
                 <button
                   type="button"
                   class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
                   data-k="150"
                   data-c="0.1"
-                  data-g="0">
-                  <i class="fas fa-rocket mr-2"></i>Microgravity
+                  data-g="0.1"
+                  data-m="1.0">
+                  <i class="fas fa-rocket mr-2"></i>Reduced Gravity
+                </button>
+                <button
+                  type="button"
+                  class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
+                  data-k="300"
+                  data-c="0.2"
+                  data-g="25"
+                  data-m="1.0">
+                  <i class="fas fa-meteor mr-2"></i>Enhanced Gravity
                 </button>
                 <button
                   type="button"
                   class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
                   data-k="200"
                   data-c="0.25"
-                  data-g="15">
-                  <i class="fas fa-weight-hanging mr-2"></i>Heavy Damping
+                  data-g="15"
+                  data-m="1.0">
+                  <i class="fas fa-weight-hanging mr-2"></i>High Damping
                 </button>
                 <button
                   type="button"
                   class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200"
                   data-k="80"
                   data-c="0.05"
-                  data-g="5">
-                  <i class="fas fa-feather mr-2"></i>Light System
+                  data-g="5"
+                  data-m="0.5">
+                  <i class="fas fa-feather mr-2"></i>Low-Inertia System
                 </button>
               </div>
             </div>
@@ -624,15 +637,27 @@
             0,
             Math.min(50, parseFloat(btn.dataset.g) || 9.8),
           );
+          params.mass = Math.max(
+            0.01,
+            Math.min(10, parseFloat(btn.dataset.m) || 1.0),
+          );
 
           // Update input fields
           document.getElementById('stiffness').value = params.stiffness;
           document.getElementById('damping').value = params.damping;
           document.getElementById('gravity').value = params.gravity;
+          document.getElementById('mass').value = params.mass;
 
           // Smoothly update spring constants
           for (let s of springs) {
             s.k = params.stiffness;
+          }
+
+          // Update masses
+          for (let m of masses) {
+            if (!m.fixed) {
+              m.m = params.mass;
+            }
           }
 
           // Reset velocities if parameters change significantly

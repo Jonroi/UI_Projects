@@ -47,6 +47,43 @@
         transform: translateX(-100%);
       }
 
+      /* Main content transition */
+      .main-content {
+        transition: all 0.3s ease-in-out;
+      }
+
+      .main-content.expanded {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      /* Simulation container styles */
+      .simulation-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .simulation-container.expanded {
+        padding: 1rem;
+      }
+
+      /* Canvas container styles */
+      .canvas-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .canvas-container.expanded {
+        max-width: 1400px;
+      }
+
       /* Tab styles */
       .tab-content {
         display: none;
@@ -387,38 +424,42 @@
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-1 flex flex-col bg-gray-50 pt-5">
-        <!-- Simulation Canvas -->
-        <div class="flex flex-col items-center bg-gray-50">
-          <div class="flex items-center px-2 pb-1 w-full max-w-4xl">
-            <span class="font-semibold text-gray-700 text-xs">
-              Energy Simulation
-            </span>
+      <main
+        id="main-content"
+        class="main-content flex-1 flex flex-col bg-gray-50">
+        <!-- Simulation Container -->
+        <div id="simulation-container" class="simulation-container">
+          <!-- Simulation Canvas -->
+          <div class="canvas-container">
+            <div class="flex items-center px-2 pb-1 w-full">
+              <span class="font-semibold text-gray-700 text-xs">
+                Energy Simulation
+              </span>
+            </div>
+            <canvas
+              id="sim-canvas"
+              width="1200"
+              height="600"
+              class="rounded-xl shadow-lg border border-gray-200 bg-white w-full"
+              style="max-height: 80vh">
+            </canvas>
           </div>
-          <canvas
-            id="sim-canvas"
-            width="1000"
-            height="450"
-            class="rounded-xl shadow-lg border border-gray-200 bg-white w-full max-w-4xl"
-            style="max-height: 100%">
-          </canvas>
-        </div>
 
-        <!-- Energy Graph Section -->
-        <div class="flex flex-col items-center bg-gray-50 mt-4">
-          <div
-            class="flex items-center justify-between px-2 pb-1 w-full max-w-4xl">
-            <span class="font-semibold text-gray-700 text-xs"
-              >Energy Graph</span
-            >
-            <span id="energy-values" class="text-xs text-gray-500"></span>
+          <!-- Energy Graph Section -->
+          <div class="canvas-container mt-4">
+            <div class="flex items-center justify-between px-2 pb-1 w-full">
+              <span class="font-semibold text-gray-700 text-xs"
+                >Energy Graph</span
+              >
+              <span id="energy-values" class="text-xs text-gray-500"></span>
+            </div>
+            <canvas
+              id="energy-canvas"
+              width="1200"
+              height="150"
+              class="rounded-xl shadow-lg border border-gray-200 bg-white w-full"
+              style="max-height: 20vh"></canvas>
           </div>
-          <canvas
-            id="energy-canvas"
-            width="1000"
-            height="120"
-            class="rounded-xl shadow-lg border border-gray-200 bg-white w-full max-w-4xl"
-            style="max-height: 100%"></canvas>
         </div>
       </main>
     </div>
@@ -1155,12 +1196,33 @@
 
         // Handle window resize
         function handleResize() {
+          const sidebar = document.getElementById('settings-sidebar');
+          const mainContent = document.getElementById('main-content');
+          const simulationContainer = document.getElementById(
+            'simulation-container',
+          );
           const canvas = document.getElementById('sim-canvas');
           const energyCanvas = document.getElementById('energy-canvas');
-          const containerWidth = Math.min(window.innerWidth - 320, 1000); // 320px for sidebar
 
-          canvas.width = containerWidth;
-          energyCanvas.width = containerWidth;
+          const isSidebarHidden = sidebar.classList.contains('hidden');
+          const containerWidth = isSidebarHidden
+            ? window.innerWidth
+            : window.innerWidth - 320;
+
+          // Update canvas sizes
+          canvas.width = Math.min(containerWidth - 32, 1200);
+          energyCanvas.width = Math.min(containerWidth - 32, 1200);
+
+          // Update container classes
+          mainContent.classList.toggle('expanded', isSidebarHidden);
+          simulationContainer.classList.toggle('expanded', isSidebarHidden);
+
+          // Update canvas containers
+          document
+            .querySelectorAll('.canvas-container')
+            .forEach((container) => {
+              container.classList.toggle('expanded', isSidebarHidden);
+            });
         }
 
         window.addEventListener('resize', handleResize);

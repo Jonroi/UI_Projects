@@ -198,7 +198,7 @@
       <button
         id="sidebar-toggle"
         class="absolute top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors border border-gray-200 flex items-center justify-center w-8 h-8">
-        <i class="fas fa-chevron-up text-gray-600 text-sm"></i>
+        <i class="fas fa-chevron-left text-gray-600 text-sm"></i>
       </button>
 
       <!-- Settings Panel -->
@@ -441,9 +441,11 @@
         id="main-content"
         class="main-content flex-1 flex flex-col bg-gray-50">
         <!-- Simulation Container -->
-        <div id="simulation-container" class="simulation-container">
+        <div
+          id="simulation-container"
+          class="simulation-container flex flex-col items-center justify-center min-h-screen p-4">
           <!-- Simulation Canvas -->
-          <div class="canvas-container">
+          <div class="canvas-container w-full max-w-7xl mx-auto">
             <div class="flex items-center px-2 pb-1 w-full">
               <span class="font-semibold text-gray-700 text-xs">
                 Energy Simulation
@@ -452,14 +454,14 @@
             <canvas
               id="sim-canvas"
               width="1200"
-              height="600"
+              height="500"
               class="rounded-xl shadow-lg border border-gray-200 bg-white w-full"
-              style="max-height: 80vh">
+              style="max-height: 60vh">
             </canvas>
           </div>
 
           <!-- Energy Graph Section -->
-          <div class="canvas-container mt-4">
+          <div class="canvas-container w-full max-w-7xl mx-auto mt-4">
             <div class="flex items-center justify-between px-2 pb-1 w-full">
               <span class="font-semibold text-gray-700 text-xs"
                 >Energy Graph</span
@@ -471,7 +473,8 @@
               width="1200"
               height="150"
               class="rounded-xl shadow-lg border border-gray-200 bg-white w-full"
-              style="max-height: 20vh"></canvas>
+              style="max-height: 20vh">
+            </canvas>
           </div>
         </div>
       </main>
@@ -1192,11 +1195,11 @@
           sidebar.classList.toggle('hidden');
           const icon = sidebarToggle.querySelector('i');
           if (sidebar.classList.contains('hidden')) {
-            icon.classList.remove('fa-chevron-up');
-            icon.classList.add('fa-chevron-down');
+            icon.classList.remove('fa-chevron-left');
+            icon.classList.add('fa-chevron-right');
           } else {
-            icon.classList.remove('fa-chevron-down');
-            icon.classList.add('fa-chevron-up');
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-left');
           }
         });
 
@@ -1234,9 +1237,16 @@
             ? window.innerWidth
             : window.innerWidth - 320;
 
+          // Calculate available height
+          const availableHeight = window.innerHeight - 32; // Account for padding
+          const simHeight = Math.min(availableHeight * 0.6, 500); // 60% of available height
+          const energyHeight = Math.min(availableHeight * 0.2, 150); // 20% of available height
+
           // Update canvas sizes
           canvas.width = Math.min(containerWidth - 32, 1200);
+          canvas.height = simHeight;
           energyCanvas.width = Math.min(containerWidth - 32, 1200);
+          energyCanvas.height = energyHeight;
 
           // Update container classes
           mainContent.classList.toggle('expanded', isSidebarHidden);

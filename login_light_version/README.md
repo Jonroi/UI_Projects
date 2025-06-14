@@ -1,15 +1,15 @@
-# Modern Login Interface - Dark Theme
+# Modern Login Interface - Light Theme
 
-A clean and modern login interface with a dark theme, built with HTML, CSS, and JavaScript.
+A clean and modern login interface with a light theme, built with HTML, CSS, and JavaScript.
 
 ## 🌟 Features
 
-- **Dark Theme Design**
+- **Light Theme Design**
 
-  - Modern dark color scheme
-  - Glowing effects
-  - High contrast elements
-  - Elegant animations
+  - Clean, minimalist interface
+  - Soft shadows and gradients
+  - High contrast text
+  - Subtle animations
 
 - **Authentication**
 
@@ -27,7 +27,7 @@ A clean and modern login interface with a dark theme, built with HTML, CSS, and 
 ## 🛠️ Technologies
 
 - **Frontend**: HTML5, CSS3, JavaScript
-- **Styling**: Custom CSS with dark theme
+- **Styling**: Custom CSS with light theme
 - **Validation**: JavaScript
 - **Icons**: Font Awesome
 
@@ -47,8 +47,8 @@ A clean and modern login interface with a dark theme, built with HTML, CSS, and 
 
 ## 🎨 Design
 
-- Dark theme interface
-- Glowing effects
+- Light theme interface
+- Soft shadows
 - High contrast elements
 - Smooth transitions
 - Responsive layout
@@ -58,13 +58,9 @@ A clean and modern login interface with a dark theme, built with HTML, CSS, and 
 The project is structured into:
 
 - `index.html`: Main HTML structure
-- `styles.css`: Dark theme and layout styles
+- `styles.css`: Light theme and layout styles
 - `main.js`: Form validation and interactions
 
 ## 📝 License
 
 MIT License - Feel free to use and modify for your own projects!
-
----
-
-**Built for learning modern web development** 🚀

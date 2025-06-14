@@ -1,133 +1,71 @@
-# Spring-Mass System Simulation
+# Mass Calculator
 
-A professional, modular implementation of a spring-mass physics simulation with real-time energy visualization.
+A desktop application for calculating mass-spring system properties, built with Electron.js.
 
-## Features
+## 🌟 Features
 
-- **Real-time Physics**: Spring forces, damping, gravity, and collision detection
-- **Interactive Masses**: Click to add, drag to move, double-click to fix/unfix
-- **Spring Connections**: Click near masses to connect them with springs
-- **Energy Visualization**: Real-time kinetic, potential, and total energy graphs
-- **Physics Presets**: Quick configurations for different scenarios
-- **Professional UI**: Modern design with Tailwind CSS and Font Awesome icons
+- **Mass-Spring Calculations**
 
-## Project Structure
+  - Spring constant calculations
+  - Mass calculations
+  - Period calculations
+  - Energy calculations
 
-```
-massCalculator/
-├── index.html          # Main HTML file
-├── styles.css          # Custom CSS styles
-├── config.js           # Configuration and constants
-├── physics.js          # Physics engine (Mass, Spring, PhysicsEngine classes)
-├── renderer.js         # Rendering engine (SimulationRenderer, EnergyGraphRenderer)
-├── main.js             # Main application logic and coordination
-├── massCalculator.html # Legacy monolithic version
-└── README.md           # This file
-```
+- **User Interface**
 
-## Architecture
+  - Clean, modern design
+  - Real-time calculations
+  - Input validation
+  - Results visualization
 
-### Modular Design
+- **Desktop Features**
+  - Native desktop application
+  - System tray integration
+  - Auto-updates
+  - Cross-platform support
 
-The application follows a clean separation of concerns:
+## 🛠️ Technologies
 
-- **Configuration** (`config.js`): Centralized settings and constants
-- **Physics Engine** (`physics.js`): Core physics calculations and object management
-- **Rendering** (`renderer.js`): Canvas drawing and visualization
-- **Main Application** (`main.js`): Coordination and user interface logic
+- **Framework**: Electron.js
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Styling**: Custom CSS
+- **Build**: Electron Builder
 
-### Key Classes
+## 🚀 Getting Started
 
-#### Physics Engine (`physics.js`)
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the application:
+   ```bash
+   npm start
+   ```
 
-- `Mass`: Represents individual masses with position, velocity, forces
-- `Spring`: Handles spring connections between masses with Hooke's law
-- `PhysicsEngine`: Manages the complete physics simulation
+## 💡 Usage
 
-#### Renderers (`renderer.js`)
+- Enter mass and spring constant values
+- View calculated results
+- Save calculations
+- Export results
 
-- `SimulationRenderer`: Draws masses, springs, and force vectors
-- `EnergyGraphRenderer`: Creates real-time energy visualization
+## 🎨 Design
 
-#### Main Application (`main.js`)
+- Clean, modern interface
+- Responsive layout
+- Dark theme support
+- Intuitive controls
 
-- `SpringMassSimulation`: Coordinates all components and handles user interaction
+## 🔧 Development
 
-## Usage
+The project is structured into:
 
-### Basic Interaction
+- `main.js`: Electron main process
+- `index.html`: Main window HTML
+- `styles.css`: Application styles
+- `renderer.js`: UI logic and calculations
 
-- **Add Mass**: Click on empty canvas
-- **Move Mass**: Drag any moveable mass
-- **Fix/Unfix Mass**: Double-click a mass
-- **Connect Springs**: Click near two masses sequentially
-- **Physics Controls**: Use sidebar to adjust parameters
+## 📝 License
 
-### Physics Parameters
-
-- **Spring Stiffness (k)**: Controls how "bouncy" springs are
-- **Damping (c)**: Energy loss over time
-- **Gravity (g)**: Downward acceleration
-- **Mass (m)**: Default mass for new objects
-
-### Presets
-
-- **Default Physics**: Earth-like gravity with moderate damping
-- **Microgravity**: Space-like environment with minimal gravity
-- **Heavy Damping**: High energy loss, underwater-like behavior
-
-## Development
-
-### Adding New Features
-
-1. **Physics Features**: Extend the `PhysicsEngine` class in `physics.js`
-2. **Visual Features**: Add methods to renderer classes in `renderer.js`
-3. **UI Features**: Modify the main application class in `main.js`
-4. **Configuration**: Add new constants to `config.js`
-
-### Customization
-
-The modular structure makes it easy to:
-
-- Replace the rendering engine (e.g., WebGL instead of Canvas 2D)
-- Add different physics models
-- Extend the user interface
-- Modify visual styling
-- Add new interaction modes
-
-### Code Quality Features
-
-- **ES6 Modules**: Clean import/export structure
-- **Class-based Design**: Proper encapsulation and inheritance
-- **Configuration Management**: Centralized constants
-- **Separation of Concerns**: Each module has a single responsibility
-- **Type Safety**: Clear method signatures and data structures
-
-## Browser Compatibility
-
-- Modern browsers with ES6 module support
-- Canvas 2D context support
-- ES6 classes and arrow functions
-
-## Dependencies
-
-- **Tailwind CSS**: Utility-first CSS framework
-- **Font Awesome**: Icon library
-- **Modern Browser**: ES6 modules and Canvas API
-
-## Performance
-
-- Optimized 60fps animation loop
-- Efficient force calculations
-- Bounded energy history tracking
-- Minimal DOM manipulation during animation
-
-## Educational Value
-
-This simulation demonstrates:
-
-- Classical mechanics (Newton's laws, Hooke's law)
-- Energy conservation principles
-- Real-time physics simulation techniques
-- Modern JavaScript application architecture
-- Professional web development practices
+MIT License - Feel free to use and modify for your own projects!

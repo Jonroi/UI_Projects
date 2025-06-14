@@ -27,46 +27,46 @@
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
     <div class="flex flex-1 h-screen relative">
       <!-- Sidebar Toggle Button -->
       <button
         id="sidebar-toggle"
-        class="absolute top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-all duration-300 ease-in-out border border-gray-200 flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        class="absolute top-4 left-4 z-50 p-2 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700 transition-all duration-300 ease-in-out border border-gray-700 flex items-center justify-center w-8 h-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900">
         <i
-          class="fas fa-chevron-left text-gray-600 text-sm transition-transform duration-300 ease-in-out"></i>
+          class="fas fa-chevron-left text-gray-400 text-sm transition-transform duration-300 ease-in-out"></i>
       </button>
 
       <!-- Settings Panel -->
-      <aside
-        id="settings-sidebar"
-        class="w-80 bg-white border-r border-gray-200 flex flex-col p-3 shadow-xl h-full overflow-y-auto transition-all duration-500 ease-in-out transform rounded-r-2xl">
+      <aside id="settings-sidebar" class="settings-sidebar">
         <h2
-          class="text-lg font-bold mb-2 text-gray-800 border-b border-gray-200 pb-2 pl-12 mt-2">
+          class="text-lg font-bold mb-2 text-gray-200 border-b border-gray-700 pb-2 pl-12 mt-2">
           Simulation Settings
         </h2>
 
         <!-- Tab Navigation -->
-        <div class="relative bg-gray-100/50 rounded-2xl p-1 mb-2">
+        <div class="relative bg-gray-800/50 rounded-2xl p-1 mb-2">
           <div class="grid grid-cols-4 gap-1">
             <button
-              class="tab-button active px-2 py-1.5 text-sm font-medium transition-all relative text-indigo-800 font-semibold bg-gradient-to-b from-indigo-100/10 to-indigo-100/5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
+              class="tab-button active px-2 py-1.5 text-sm font-medium transition-all relative text-indigo-400 font-semibold bg-gradient-to-b from-indigo-900/10 to-indigo-900/5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded-xl"
               data-tab="physics">
               Physics
             </button>
             <button
-              class="tab-button px-2 py-1.5 text-sm font-medium transition-all relative text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
+              class="tab-button px-2 py-1.5 text-sm font-medium transition-all relative text-gray-400 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded-xl"
               data-tab="presets">
               Presets
             </button>
             <button
-              class="tab-button px-2 py-1.5 text-sm font-medium transition-all relative text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
+              class="tab-button px-2 py-1.5 text-sm font-medium transition-all relative text-gray-400 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded-xl"
               data-tab="controls">
               Controls
             </button>
             <button
-              class="tab-button px-2 py-1.5 text-sm font-medium transition-all relative text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
+              class="tab-button px-2 py-1.5 text-sm font-medium transition-all relative text-gray-400 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded-xl"
               data-tab="guide">
               Guide
             </button>
@@ -79,15 +79,15 @@
           <div id="physics-tab" class="tab-content active mt-2 animate-fade-in">
             <form id="settings-form" class="flex flex-col gap-3">
               <div
-                class="bg-gray-50 p-3 rounded-2xl shadow-sm border border-gray-100">
+                class="bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-700">
                 <h3
-                  class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                  class="text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wide">
                   Physics Parameters
                 </h3>
                 <div class="space-y-3">
                   <div>
                     <label
-                      class="block text-xs font-medium text-gray-700 mb-1"
+                      class="block text-xs font-medium text-gray-300 mb-1"
                       for="stiffness">
                       Spring Stiffness (k)
                     </label>
@@ -100,11 +100,11 @@
                       max="1000"
                       value="100"
                       required
-                      class="w-full border border-gray-300 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition shadow-sm bg-white select-none touch-none" />
+                      class="w-full border border-gray-600 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm bg-gray-700 select-none touch-none" />
                   </div>
                   <div>
                     <label
-                      class="block text-xs font-medium text-gray-700 mb-1"
+                      class="block text-xs font-medium text-gray-300 mb-1"
                       for="damping">
                       Damping (c)
                     </label>
@@ -117,11 +117,11 @@
                       max="10"
                       value="0.05"
                       required
-                      class="w-full border border-gray-300 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition shadow-sm bg-white select-none touch-none" />
+                      class="w-full border border-gray-600 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm bg-gray-700 select-none touch-none" />
                   </div>
                   <div>
                     <label
-                      class="block text-xs font-medium text-gray-700 mb-1"
+                      class="block text-xs font-medium text-gray-300 mb-1"
                       for="gravity">
                       Gravity (g)
                     </label>
@@ -134,11 +134,11 @@
                       max="50"
                       value="9.8"
                       required
-                      class="w-full border border-gray-300 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition shadow-sm bg-white select-none touch-none" />
+                      class="w-full border border-gray-600 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm bg-gray-700 select-none touch-none" />
                   </div>
                   <div>
                     <label
-                      class="block text-xs font-medium text-gray-700 mb-1"
+                      class="block text-xs font-medium text-gray-300 mb-1"
                       for="mass">
                       Mass (m)
                     </label>
@@ -151,7 +151,7 @@
                       max="10"
                       value="1.0"
                       required
-                      class="w-full border border-gray-300 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition shadow-sm bg-white select-none touch-none" />
+                      class="w-full border border-gray-600 rounded-xl px-2.5 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm bg-gray-700 select-none touch-none" />
                   </div>
                 </div>
               </div>
@@ -161,15 +161,15 @@
           <!-- Presets Tab -->
           <div id="presets-tab" class="tab-content hidden mt-2 animate-fade-in">
             <div
-              class="bg-gray-50 p-3 rounded-2xl shadow-sm border border-gray-100">
+              class="bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-700">
               <h3
-                class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                class="text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wide">
                 Quick Presets
               </h3>
               <div class="grid grid-cols-1 gap-2">
                 <button
                   type="button"
-                  class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="preset-btn text-xs py-2 px-3 bg-gray-700 text-gray-200 rounded-xl hover:bg-gray-600 hover:text-white transition shadow-sm hover:shadow-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                   data-k="100"
                   data-c="0.15"
                   data-g="9.8"
@@ -178,7 +178,7 @@
                 </button>
                 <button
                   type="button"
-                  class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="preset-btn text-xs py-2 px-3 bg-gray-700 text-gray-200 rounded-xl hover:bg-gray-600 hover:text-white transition shadow-sm hover:shadow-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                   data-k="150"
                   data-c="0.1"
                   data-g="0.1"
@@ -187,7 +187,7 @@
                 </button>
                 <button
                   type="button"
-                  class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="preset-btn text-xs py-2 px-3 bg-gray-700 text-gray-200 rounded-xl hover:bg-gray-600 hover:text-white transition shadow-sm hover:shadow-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                   data-k="300"
                   data-c="0.2"
                   data-g="25"
@@ -196,7 +196,7 @@
                 </button>
                 <button
                   type="button"
-                  class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="preset-btn text-xs py-2 px-3 bg-gray-700 text-gray-200 rounded-xl hover:bg-gray-600 hover:text-white transition shadow-sm hover:shadow-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                   data-k="200"
                   data-c="0.25"
                   data-g="15"
@@ -205,7 +205,7 @@
                 </button>
                 <button
                   type="button"
-                  class="preset-btn text-xs py-2 px-3 bg-white text-gray-700 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 transition shadow-sm hover:shadow-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  class="preset-btn text-xs py-2 px-3 bg-gray-700 text-gray-200 rounded-xl hover:bg-gray-600 hover:text-white transition shadow-sm hover:shadow-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                   data-k="80"
                   data-c="0.05"
                   data-g="5"
@@ -221,9 +221,9 @@
             id="controls-tab"
             class="tab-content hidden mt-2 animate-fade-in">
             <div
-              class="bg-gray-50 p-3 rounded-2xl shadow-sm border border-gray-100">
+              class="bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-700">
               <h3
-                class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                class="text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wide">
                 Simulation Controls
               </h3>
               <div class="space-y-2">
@@ -231,20 +231,20 @@
                   <button
                     type="button"
                     id="pause-btn"
-                    class="flex-1 py-2 px-3 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 text-xs shadow-sm hover:shadow-md transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    class="flex-1 py-2 px-3 bg-gray-700 text-gray-200 border border-gray-600 rounded-xl hover:bg-gray-600 hover:text-white text-xs shadow-sm hover:shadow-md transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900">
                     <i class="fas fa-pause mr-2"></i>Pause
                   </button>
                   <button
                     type="button"
                     id="force-toggle-btn"
-                    class="flex-1 py-2 px-3 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 text-xs shadow-sm hover:shadow-md transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    class="flex-1 py-2 px-3 bg-gray-700 text-gray-200 border border-gray-600 rounded-xl hover:bg-gray-600 hover:text-white text-xs shadow-sm hover:shadow-md transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900">
                     <i class="fas fa-eye-slash mr-2"></i>Hide Forces
                   </button>
                 </div>
                 <button
                   type="button"
                   id="reset-btn"
-                  class="w-full py-2 px-3 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-indigo-100 hover:text-indigo-800 text-xs shadow-sm hover:shadow-md transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  class="w-full py-2 px-3 bg-gray-700 text-gray-200 border border-gray-600 rounded-xl hover:bg-gray-600 hover:text-white text-xs shadow-sm hover:shadow-md transition font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900">
                   <i class="fas fa-redo mr-2"></i>Reset Simulation
                 </button>
               </div>
@@ -254,15 +254,15 @@
           <!-- Guide Tab -->
           <div id="guide-tab" class="tab-content hidden mt-2 animate-fade-in">
             <div
-              class="bg-gray-50 p-3 rounded-2xl shadow-sm border border-gray-100 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-1">
+              class="bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-700 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-1">
               <!-- Basic Interactions -->
               <div>
                 <h3
-                  class="text-xs font-semibold mb-2 text-gray-700 uppercase tracking-wide sticky top-0 bg-gray-50 py-1">
+                  class="text-xs font-semibold mb-2 text-gray-300 uppercase tracking-wide sticky top-0 bg-gray-800 py-1">
                   Basic Interactions
                 </h3>
                 <ul
-                  class="list-disc list-inside text-xs text-gray-600 space-y-1.5">
+                  class="list-disc list-inside text-xs text-gray-400 space-y-1.5">
                   <li><strong>Click</strong> empty canvas to add a mass</li>
                   <li>
                     <strong>Click near</strong> two masses to connect with
@@ -281,24 +281,24 @@
               <!-- Visual Indicators -->
               <div>
                 <h3
-                  class="text-xs font-semibold mb-2 text-gray-700 uppercase tracking-wide sticky top-0 bg-gray-50 py-1">
+                  class="text-xs font-semibold mb-2 text-gray-300 uppercase tracking-wide sticky top-0 bg-gray-800 py-1">
                   Visual Indicators
                 </h3>
                 <ul
-                  class="list-disc list-inside text-xs text-gray-600 space-y-1.5">
+                  class="list-disc list-inside text-xs text-gray-400 space-y-1.5">
                   <li>
                     Springs:
-                    <span class="text-blue-600">Blue = Compressed</span>,
-                    <span class="text-red-600">Red = Extended</span>
+                    <span class="text-blue-400">Blue = Compressed</span>,
+                    <span class="text-red-400">Red = Extended</span>
                   </li>
                   <li>
                     Masses:
-                    <span class="text-purple-600">Purple X = Fixed</span>,
-                    <span class="text-indigo-600">Blue = Moveable</span>
+                    <span class="text-purple-400">Purple X = Fixed</span>,
+                    <span class="text-indigo-400">Blue = Moveable</span>
                   </li>
                   <li>
                     Forces:
-                    <span class="text-red-600">Red arrows</span> show force
+                    <span class="text-red-400">Red arrows</span> show force
                     vectors
                   </li>
                 </ul>
@@ -307,11 +307,11 @@
               <!-- Physics Parameters -->
               <div>
                 <h3
-                  class="text-xs font-semibold mb-2 text-gray-700 uppercase tracking-wide sticky top-0 bg-gray-50 py-1">
+                  class="text-xs font-semibold mb-2 text-gray-300 uppercase tracking-wide sticky top-0 bg-gray-800 py-1">
                   Physics Parameters
                 </h3>
                 <ul
-                  class="list-disc list-inside text-xs text-gray-600 space-y-1.5">
+                  class="list-disc list-inside text-xs text-gray-400 space-y-1.5">
                   <li>
                     <strong>Spring Stiffness (k):</strong> Controls spring force
                     strength
@@ -330,11 +330,11 @@
               <!-- Controls -->
               <div>
                 <h3
-                  class="text-xs font-semibold mb-2 text-gray-700 uppercase tracking-wide sticky top-0 bg-gray-50 py-1">
+                  class="text-xs font-semibold mb-2 text-gray-300 uppercase tracking-wide sticky top-0 bg-gray-800 py-1">
                   Controls
                 </h3>
                 <ul
-                  class="list-disc list-inside text-xs text-gray-600 space-y-1.5">
+                  class="list-disc list-inside text-xs text-gray-400 space-y-1.5">
                   <li>
                     <strong>Pause/Resume:</strong> Temporarily stop simulation
                   </li>
@@ -353,11 +353,11 @@
               <!-- Tips -->
               <div>
                 <h3
-                  class="text-xs font-semibold mb-2 text-gray-700 uppercase tracking-wide sticky top-0 bg-gray-50 py-1">
+                  class="text-xs font-semibold mb-2 text-gray-300 uppercase tracking-wide sticky top-0 bg-gray-800 py-1">
                   Tips
                 </h3>
                 <ul
-                  class="list-disc list-inside text-xs text-gray-600 space-y-1.5">
+                  class="list-disc list-inside text-xs text-gray-400 space-y-1.5">
                   <li>Start with low stiffness for stable systems</li>
                   <li>Use damping to control oscillation</li>
                   <li>Fix masses to create stable anchor points</li>
@@ -368,7 +368,7 @@
           </div>
         </div>
 
-        <div class="mt-auto pt-3 text-xs text-gray-400">
+        <div class="mt-auto pt-3 text-xs text-gray-500">
           Spring-Mass Simulator &copy; 2025
         </div>
       </aside>
@@ -376,889 +376,90 @@
       <!-- Main Content Area -->
       <main
         id="main-content"
-        class="main-content flex-1 flex flex-col bg-gray-50">
+        class="main-content flex-1 flex flex-col bg-gray-900">
         <!-- Simulation Container -->
         <div
           id="simulation-container"
           class="simulation-container flex flex-col items-center justify-center min-h-screen p-4">
           <!-- Simulation Canvas -->
           <div class="canvas-container w-full max-w-7xl mx-auto">
-            <div class="flex items-center px-2 pb-1 w-full">
-              <span class="font-semibold text-gray-700 text-xs">
+            <div class="flex items-center justify-between px-2 pb-1 w-full">
+              <span
+                class="font-semibold text-gray-300 text-xs flex items-center">
+                <i class="fas fa-atom mr-2 text-indigo-400"></i>
                 Energy Simulation
               </span>
+              <span class="text-xs text-gray-400"
+                >Click to add masses, drag to move</span
+              >
             </div>
             <canvas
               id="sim-canvas"
               width="1200"
               height="500"
-              class="rounded-xl shadow-lg border border-gray-200 bg-white w-full select-none touch-none"
-              style="max-height: 60vh">
+              class="rounded-xl shadow-lg border border-gray-700 bg-gray-800 w-full select-none touch-none transition-all duration-300"
+              style="max-height: 60vh; min-width: 0">
             </canvas>
           </div>
 
           <!-- Energy Graph Section -->
           <div class="canvas-container w-full max-w-7xl mx-auto mt-4">
             <div class="flex items-center justify-between px-2 pb-1 w-full">
-              <span class="font-semibold text-gray-700 text-xs"
-                >Energy Graph</span
-              >
-              <span id="energy-values" class="text-xs text-gray-500"></span>
+              <span
+                class="font-semibold text-gray-300 text-xs flex items-center">
+                <i class="fas fa-chart-line mr-2 text-indigo-400"></i>
+                Energy Graph
+              </span>
+              <span
+                id="energy-values"
+                class="text-xs text-gray-400 font-mono"></span>
             </div>
             <canvas
               id="energy-canvas"
               width="1200"
               height="150"
-              class="rounded-xl shadow-lg border border-gray-200 bg-white w-full select-none touch-none"
-              style="max-height: 20vh">
+              class="rounded-xl shadow-lg border border-gray-700 bg-gray-800 w-full select-none touch-none transition-all duration-300"
+              style="max-height: 20vh; min-width: 0">
             </canvas>
           </div>
         </div>
       </main>
     </div>
 
-    <script>
-      // Physics Parameters
-      let params = {
-        stiffness: 100,
-        damping: 0.05,
-        gravity: 9.8,
-        mass: 1.0,
-      };
+    <!-- Load JavaScript modules -->
+    <script type="module">
+      // Debug logging
+      console.log('Starting module initialization...');
 
-      // Canvas Elements
-      const canvas = document.getElementById('sim-canvas');
-      const ctx = canvas.getContext('2d');
-      const energyCanvas = document.getElementById('energy-canvas');
-      const ectx = energyCanvas.getContext('2d');
-      const energyValuesText = document.getElementById('energy-values');
-
-      // Simulation Data
-      let masses = [];
-      let springs = [];
-      let forceVectors = [];
-
-      // Controls
-      let isPaused = false;
-      let showForces = true;
-
-      // Interaction State
-      let dragTarget = null;
-      let dragOffset = { x: 0, y: 0 };
-      let connectMode = false;
-      let connectStart = null;
-
-      // Energy Tracking
-      const ENERGY_HISTORY = 1000;
-      let energyData = [];
-
-      // Double-click Detection
-      let lastClickTime = 0;
-      let lastClickMass = null;
-
-      // Data Classes
-      class Mass {
-        constructor(x, y, m = params.mass) {
-          this.x = x;
-          this.y = y;
-          this.vx = 0;
-          this.vy = 0;
-          this.fx = 0;
-          this.fy = 0;
-          this.m = m;
-          this.fixed = false;
-        }
-        get pos() {
-          return [this.x, this.y];
-        }
-        set pos([x, y]) {
-          this.x = x;
-          this.y = y;
-        }
-      }
-
-      class Spring {
-        constructor(m1, m2, k = params.stiffness) {
-          this.m1 = m1;
-          this.m2 = m2;
-          this.k = k;
-          this.restLength = distance(m1, m2);
-        }
-      }
-
-      function distance(a, b) {
-        return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
-      }
-
-      // Simulation Setup
-      function resetSimulation() {
-        masses = [];
-        springs = [];
-        energyData = [];
-        connectStart = null;
-        connectMode = false;
-        let p1 = new Mass(canvas.width / 2, 100, params.mass);
-        p1.fixed = true;
-        let p2 = new Mass(canvas.width / 2, 200, params.mass);
-        masses.push(p1, p2);
-        springs.push(new Spring(p1, p2, params.stiffness));
-      }
-      resetSimulation();
-
-      // UI Event Handlers
-      document
-        .getElementById('settings-form')
-        .addEventListener('input', (e) => {
-          // Debounce parameter updates to prevent rapid changes
-          clearTimeout(window.paramUpdateTimeout);
-          window.paramUpdateTimeout = setTimeout(() => {
-            const oldParams = { ...params };
-
-            if (e.target.id === 'stiffness') {
-              params.stiffness = Math.max(
-                0.1,
-                Math.min(1000, parseFloat(e.target.value) || 100),
-              );
-            }
-            if (e.target.id === 'damping') {
-              params.damping = Math.max(
-                0,
-                Math.min(10, parseFloat(e.target.value) || 0.05),
-              );
-            }
-            if (e.target.id === 'gravity') {
-              params.gravity = Math.max(
-                0,
-                Math.min(50, parseFloat(e.target.value) || 9.8),
-              );
-            }
-            if (e.target.id === 'mass') {
-              params.mass = Math.max(
-                0.01,
-                Math.min(10, parseFloat(e.target.value) || 1.0),
-              );
-            }
-
-            // Smoothly update spring constants
-            for (let s of springs) {
-              s.k = params.stiffness;
-            }
-
-            // Reset velocities if parameters change significantly
-            if (
-              Math.abs(oldParams.gravity - params.gravity) > 1 ||
-              Math.abs(oldParams.damping - params.damping) > 0.1
-            ) {
-              for (let m of masses) {
-                if (!m.fixed) {
-                  m.vx *= 0.5;
-                  m.vy *= 0.5;
-                }
-              }
-            }
-          }, 100); // 100ms debounce
-        });
-
-      document.querySelectorAll('.preset-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          // Store old parameters
-          const oldParams = { ...params };
-
-          // Update parameters with validation
-          params.stiffness = Math.max(
-            0.1,
-            Math.min(1000, parseFloat(btn.dataset.k) || 100),
-          );
-          params.damping = Math.max(
-            0,
-            Math.min(10, parseFloat(btn.dataset.c) || 0.05),
-          );
-          params.gravity = Math.max(
-            0,
-            Math.min(50, parseFloat(btn.dataset.g) || 9.8),
-          );
-          params.mass = Math.max(
-            0.01,
-            Math.min(10, parseFloat(btn.dataset.m) || 1.0),
-          );
-
-          // Update input fields
-          document.getElementById('stiffness').value = params.stiffness;
-          document.getElementById('damping').value = params.damping;
-          document.getElementById('gravity').value = params.gravity;
-          document.getElementById('mass').value = params.mass;
-
-          // Smoothly update spring constants
-          for (let s of springs) {
-            s.k = params.stiffness;
-          }
-
-          // Update masses
-          for (let m of masses) {
-            if (!m.fixed) {
-              m.m = params.mass;
-            }
-          }
-
-          // Reset velocities if parameters change significantly
-          if (
-            Math.abs(oldParams.gravity - params.gravity) > 1 ||
-            Math.abs(oldParams.damping - params.damping) > 0.1
-          ) {
-            for (let m of masses) {
-              if (!m.fixed) {
-                m.vx *= 0.5;
-                m.vy *= 0.5;
-              }
-            }
-          }
-        });
+      // Error handling for module loading
+      window.addEventListener('error', (event) => {
+        console.error('Module loading error:', event.error);
       });
 
-      document.getElementById('reset-btn').addEventListener('click', () => {
-        resetSimulation();
-      });
-      document.getElementById('pause-btn').addEventListener('click', (e) => {
-        isPaused = !isPaused;
-        e.target.innerHTML = isPaused
-          ? '<i class="fas fa-play mr-2"></i>Resume'
-          : '<i class="fas fa-pause mr-2"></i>Pause';
-        e.target.className = isPaused
-          ? 'flex-1 py-2.5 px-3 bg-white text-orange-700 border border-orange-200 rounded-lg hover:bg-orange-100 text-sm shadow-sm hover:shadow-md transition font-medium'
-          : 'flex-1 py-2.5 px-3 bg-white text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 text-sm shadow-sm hover:shadow-md transition font-medium';
-      });
+      // Import and initialize the app
+      try {
+        const appModule = await import('./js/app.js');
+        console.log('App module loaded successfully');
 
-      document
-        .getElementById('force-toggle-btn')
-        .addEventListener('click', (e) => {
-          showForces = !showForces;
-          e.target.innerHTML = showForces
-            ? '<i class="fas fa-eye-slash mr-2"></i>Hide Forces'
-            : '<i class="fas fa-eye mr-2"></i>Show Forces';
-          e.target.className = showForces
-            ? 'flex-1 py-2.5 px-3 bg-white text-green-700 border border-green-200 rounded-lg hover:bg-green-100 text-sm shadow-sm hover:shadow-md transition font-medium'
-            : 'flex-1 py-2.5 px-3 bg-white text-red-700 border border-red-200 rounded-lg hover:bg-gray-100 text-sm shadow-sm hover:shadow-md transition font-medium';
-        });
-
-      // Mouse Interaction
-      function getMousePos(evt) {
-        const rect = canvas.getBoundingClientRect();
-        return {
-          x: (evt.clientX - rect.left) * (canvas.width / rect.width),
-          y: (evt.clientY - rect.top) * (canvas.height / rect.height),
-        };
-      }
-
-      function findMassAt(x, y) {
-        for (let m of masses) {
-          if (Math.hypot(m.x - x, m.y - y) < 18) {
-            return m;
-          }
-        }
-        return null;
-      }
-
-      function springExists(m1, m2) {
-        return springs.some(
-          (s) => (s.m1 === m1 && s.m2 === m2) || (s.m1 === m2 && s.m2 === m1),
-        );
-      }
-
-      canvas.addEventListener('mousedown', (e) => {
-        const mouse = getMousePos(e);
-        const foundMass = findMassAt(mouse.x, mouse.y);
-
-        if (foundMass && !foundMass.fixed) {
-          dragTarget = foundMass;
-          dragOffset.x = foundMass.x - mouse.x;
-          dragOffset.y = foundMass.y - mouse.y;
-        }
-      });
-
-      canvas.addEventListener('mousemove', (e) => {
-        if (dragTarget) {
-          const mouse = getMousePos(e);
-          dragTarget.x = mouse.x + dragOffset.x;
-          dragTarget.y = mouse.y + dragOffset.y;
-          dragTarget.vx = 0;
-          dragTarget.vy = 0;
-        }
-      });
-
-      canvas.addEventListener('mouseup', (e) => {
-        dragTarget = null;
-      });
-
-      canvas.addEventListener('mouseleave', (e) => {
-        dragTarget = null;
-      });
-
-      // Click handling for adding masses, connecting, and double-click
-      canvas.addEventListener('click', (e) => {
-        const mouse = getMousePos(e);
-        const foundMass = findMassAt(mouse.x, mouse.y);
-        const currentTime = Date.now();
-        if (
-          foundMass &&
-          lastClickMass === foundMass &&
-          currentTime - lastClickTime < 500
-        ) {
-          foundMass.fixed = !foundMass.fixed;
-          foundMass.vx = 0;
-          foundMass.vy = 0;
-          lastClickMass = null;
-          lastClickTime = 0;
-          return;
-        }
-
-        lastClickMass = foundMass;
-        lastClickTime = currentTime;
-
-        if (foundMass) {
-          if (connectStart === null) {
-            connectStart = foundMass;
-          } else if (
-            connectStart !== foundMass &&
-            !springExists(connectStart, foundMass)
-          ) {
-            springs.push(new Spring(connectStart, foundMass, params.stiffness));
-            connectStart = null;
-          } else {
-            connectStart = foundMass;
-          }
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initializeApp);
         } else {
-          let newMass = new Mass(mouse.x, mouse.y, params.mass);
-          masses.push(newMass);
-          if (masses.length > 1) {
-            let lastMass = masses[masses.length - 2];
-            if (!springExists(lastMass, newMass)) {
-              springs.push(new Spring(lastMass, newMass, params.stiffness));
-            }
-          }
-
-          connectStart = null;
+          initializeApp();
         }
-      });
 
-      // Physics Engine
-      function step(dt) {
-        if (isPaused) return;
-
-        // Increase base timestep for faster animation
-        dt = Math.min(dt * 2, 0.032); // Doubled the timestep, capped at ~30fps equivalent
-
-        // Reset forces
-        for (let m of masses) {
-          m.fx = 0;
-          m.fy = 0;
-        }
-        forceVectors = [];
-
-        // Calculate spring forces with stability checks
-        for (let s of springs) {
-          let m1 = s.m1,
-            m2 = s.m2;
-          let dx = m2.x - m1.x,
-            dy = m2.y - m1.y;
-          let dist = Math.sqrt(dx * dx + dy * dy) || 1e-8;
-          let ext = dist - s.restLength;
-
-          // Limit extension to prevent extreme forces
-          ext = Math.max(-100, Math.min(100, ext));
-
-          // Spring force with stability and increased strength
-          let fx = ((s.k * ext * dx) / dist) * 1.5; // Increased spring force
-          let fy = ((s.k * ext * dy) / dist) * 1.5;
-
-          // Damping force with stability
-          let dvx = m2.vx - m1.vx;
-          let dvy = m2.vy - m1.vy;
-          let dampingForce = params.damping * ((dvx * dx + dvy * dy) / dist);
-          let fdx = (dampingForce * dx) / dist;
-          let fdy = (dampingForce * dy) / dist;
-
-          // Apply forces with limits
-          if (!m1.fixed) {
-            m1.fx += Math.max(-1000, Math.min(1000, fx + fdx));
-            m1.fy += Math.max(-1000, Math.min(1000, fy + fdy));
-          }
-          if (!m2.fixed) {
-            m2.fx -= Math.max(-1000, Math.min(1000, fx + fdx));
-            m2.fy -= Math.max(-1000, Math.min(1000, fy + fdy));
-          }
-
-          // Store force vectors for display
-          if (showForces) {
-            forceVectors.push({
-              x1: m1.x,
-              y1: m1.y,
-              x2: m1.x + (fx + fdx) * 0.2,
-              y2: m1.y + (fy + fdy) * 0.2,
-              color: '#dc2626',
-            });
-            forceVectors.push({
-              x1: m2.x,
-              y1: m2.y,
-              x2: m2.x - (fx + fdx) * 0.2,
-              y2: m2.y - (fy + fdy) * 0.2,
-              color: '#dc2626',
-            });
+        function initializeApp() {
+          console.log('DOM loaded, initializing app...');
+          try {
+            window.app = new appModule.SpringMassApp();
+            console.log('App initialized successfully');
+          } catch (error) {
+            console.error('Failed to initialize app:', error);
           }
         }
-
-        // Apply gravity and air resistance with stability
-        for (let m of masses) {
-          if (!m.fixed) {
-            // Apply gravity with increased effect
-            m.fy += m.m * params.gravity * 1.5; // Increased gravity effect
-            // Apply air resistance with limits
-            m.fx += Math.max(-100, Math.min(100, -params.damping * m.vx));
-            m.fy += Math.max(-100, Math.min(100, -params.damping * m.vy));
-          }
-        }
-
-        // Update positions with improved stability
-        for (let m of masses) {
-          if (!m.fixed && m !== dragTarget) {
-            // Calculate acceleration with mass consideration and limits
-            let ax = Math.max(-100, Math.min(100, m.fx / m.m));
-            let ay = Math.max(-100, Math.min(100, m.fy / m.m));
-
-            // Update velocity with improved stability
-            m.vx += ax * dt;
-            m.vy += ay * dt;
-
-            // Apply velocity damping for stability
-            m.vx *= 0.98; // Reduced damping for more movement
-            m.vy *= 0.98;
-
-            // Limit maximum velocity
-            const maxVel = 1500; // Increased from 1000
-            m.vx = Math.max(-maxVel, Math.min(maxVel, m.vx));
-            m.vy = Math.max(-maxVel, Math.min(maxVel, m.vy));
-
-            // Update position
-            m.x += m.vx * dt;
-            m.y += m.vy * dt;
-
-            // Boundary collision with improved response
-            if (m.x < 12) {
-              m.x = 12;
-              m.vx = Math.abs(m.vx) * 0.5; // Increased bounce
-            }
-            if (m.x > canvas.width - 12) {
-              m.x = canvas.width - 12;
-              m.vx = -Math.abs(m.vx) * 0.5;
-            }
-            if (m.y > canvas.height - 12) {
-              m.y = canvas.height - 12;
-              m.vy = -Math.abs(m.vy) * 0.5;
-            }
-            if (m.y < 12) {
-              m.y = 12;
-              m.vy = Math.abs(m.vy) * 0.5;
-            }
-          }
-        }
-
-        // Calculate energy with proper scaling
-        let KE = 0,
-          PE = 0;
-
-        // Kinetic energy
-        for (let m of masses) {
-          KE += 0.5 * m.m * (m.vx ** 2 + m.vy ** 2);
-          PE += m.m * params.gravity * m.y * 1.5; // Adjusted for new gravity scaling
-        }
-
-        // Spring energy
-        for (let s of springs) {
-          let d = distance(s.m1, s.m2);
-          let ext = d - s.restLength;
-          PE += 0.5 * s.k * ext ** 2 * 1.5; // Adjusted for new spring scaling
-        }
-
-        // Store energy data
-        let totalE = KE + PE;
-        energyData.push({
-          ke: KE,
-          pe: PE,
-          total: totalE,
-          t: performance.now() / 1000,
-        });
-
-        // Keep data within limits
-        if (energyData.length > ENERGY_HISTORY) energyData.shift();
-        energyValuesText.textContent = `KE: ${KE.toFixed(
-          2,
-        )} J | PE: ${PE.toFixed(2)} J | Total: ${totalE.toFixed(2)} J`;
+      } catch (error) {
+        console.error('Failed to load app.js:', error);
       }
-
-      // Rendering
-      function draw() {
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw Springs
-        for (let s of springs) {
-          ctx.save();
-          let currentLength = distance(s.m1, s.m2);
-          let extension = currentLength - s.restLength;
-
-          // Color: Red = stretched, Blue = compressed
-          if (extension > 0) {
-            ctx.strokeStyle = '#dc2626';
-          } else {
-            ctx.strokeStyle = '#2563eb';
-          }
-
-          // Thickness shows force
-          ctx.lineWidth = Math.max(
-            2,
-            Math.min(6, Math.abs(extension) * 0.1 + 2),
-          );
-          ctx.beginPath();
-          ctx.moveTo(s.m1.x, s.m1.y);
-          ctx.lineTo(s.m2.x, s.m2.y);
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        // Draw Force Vectors
-        if (showForces) {
-          for (let fv of forceVectors) {
-            ctx.save();
-            ctx.strokeStyle = fv.color;
-            ctx.lineWidth = 2;
-
-            // Draw line
-            ctx.beginPath();
-            ctx.moveTo(fv.x1, fv.y1);
-            ctx.lineTo(fv.x2, fv.y2);
-            ctx.stroke();
-
-            // Draw arrow
-            let dx = fv.x2 - fv.x1,
-              dy = fv.y2 - fv.y1;
-            let len = Math.sqrt(dx * dx + dy * dy);
-            if (len > 6) {
-              let ux = dx / len,
-                uy = dy / len;
-              ctx.beginPath();
-              ctx.moveTo(fv.x2, fv.y2);
-              ctx.lineTo(fv.x2 - 8 * ux + 4 * uy, fv.y2 - 8 * uy - 4 * ux);
-              ctx.lineTo(fv.x2 - 8 * ux - 4 * uy, fv.y2 - 8 * uy + 4 * ux);
-              ctx.closePath();
-              ctx.fillStyle = fv.color;
-              ctx.globalAlpha = 0.4;
-              ctx.fill();
-              ctx.globalAlpha = 1.0;
-            }
-            ctx.restore();
-          }
-        }
-
-        // Draw Masses
-        for (let m of masses) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(m.x, m.y, 14, 0, 2 * Math.PI);
-
-          // Color: Purple = fixed, Blue = moveable
-          ctx.fillStyle = m.fixed ? '#9333ea' : '#818cf8';
-          ctx.globalAlpha = 0.93;
-          ctx.shadowColor = 'rgba(67,56,202,0.10)';
-          ctx.shadowBlur = 5;
-          ctx.fill();
-          ctx.globalAlpha = 1.0;
-          ctx.shadowBlur = 0;
-
-          // Border
-          ctx.strokeStyle = '#334155';
-          ctx.lineWidth = 2.5;
-          ctx.stroke();
-
-          // Text: "X" for fixed, number for moveable
-          ctx.font = '12px Inter, Arial';
-          ctx.fillStyle = '#ffffff';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(m.fixed ? 'X' : masses.indexOf(m) + 1, m.x, m.y);
-          ctx.restore();
-        }
-
-        // Interaction highlights
-        if (dragTarget) {
-          // Dragging highlight
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(dragTarget.x, dragTarget.y, 19, 0, 2 * Math.PI);
-          ctx.strokeStyle = '#f59e42';
-          ctx.lineWidth = 3;
-          ctx.setLineDash([5, 7]);
-          ctx.stroke();
-          ctx.restore();
-        }
-        if (connectStart) {
-          // Connection highlight
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(connectStart.x, connectStart.y, 19, 0, 2 * Math.PI);
-          ctx.strokeStyle = '#10b981';
-          ctx.lineWidth = 3;
-          ctx.setLineDash([3, 5]);
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-
-      // Energy Graph
-      function drawEnergyGraph() {
-        ectx.clearRect(0, 0, energyCanvas.width, energyCanvas.height);
-        if (energyData.length < 2) return;
-
-        // Calculate range
-        let minE = Math.min(
-          ...energyData.map((e) => Math.min(e.ke, e.pe, e.total)),
-        );
-        let maxE = Math.max(
-          ...energyData.map((e) => Math.max(e.ke, e.pe, e.total)),
-        );
-
-        if (maxE - minE < 10) {
-          minE -= 5;
-          maxE += 5;
-        }
-
-        // Draw grid
-        ectx.save();
-        ectx.strokeStyle = '#e5e7eb';
-        ectx.lineWidth = 1.2;
-
-        ectx.beginPath();
-        ectx.moveTo(0, energyCanvas.height - 18);
-        ectx.lineTo(energyCanvas.width, energyCanvas.height - 18);
-        ectx.stroke();
-
-        ectx.beginPath();
-        ectx.moveTo(30, 0);
-        ectx.lineTo(30, energyCanvas.height);
-        ectx.stroke();
-        ectx.restore();
-
-        // Draw Kinetic Energy (blue)
-        ectx.save();
-        ectx.strokeStyle = '#3b82f6';
-        ectx.lineWidth = 2.2;
-        ectx.beginPath();
-        for (let i = 0; i < energyData.length; ++i) {
-          let ex = 30 + i;
-          let ey = mapE(energyData[i].ke, minE, maxE);
-          if (i === 0) ectx.moveTo(ex, ey);
-          else ectx.lineTo(ex, ey);
-        }
-        ectx.stroke();
-        ectx.restore();
-
-        // Draw Potential Energy (green)
-        ectx.save();
-        ectx.strokeStyle = '#10b981';
-        ectx.lineWidth = 2.2;
-        ectx.beginPath();
-        for (let i = 0; i < energyData.length; ++i) {
-          let ex = 30 + i;
-          let ey = mapE(energyData[i].pe, minE, maxE);
-          if (i === 0) ectx.moveTo(ex, ey);
-          else ectx.lineTo(ex, ey);
-        }
-        ectx.stroke();
-        ectx.restore();
-
-        // Draw Total Energy (red dashed)
-        ectx.save();
-        ectx.strokeStyle = '#dc2626';
-        ectx.lineWidth = 2.2;
-        ectx.setLineDash([5, 5]);
-        ectx.beginPath();
-        for (let i = 0; i < energyData.length; ++i) {
-          let ex = 30 + i;
-          let ey = mapE(energyData[i].total, minE, maxE);
-          if (i === 0) ectx.moveTo(ex, ey);
-          else ectx.lineTo(ex, ey);
-        }
-        ectx.stroke();
-        ectx.restore();
-
-        // Draw labels
-        ectx.save();
-        ectx.font = 'bold 11px Inter, Arial';
-        ectx.fillStyle = '#3b82f6';
-        ectx.fillText('KE', 7, 20);
-        ectx.fillStyle = '#10b981';
-        ectx.fillText('PE', 7, 35);
-        ectx.fillStyle = '#dc2626';
-        ectx.fillText('Total', 7, 50);
-        ectx.restore();
-      }
-
-      function mapE(e, minE, maxE) {
-        const graphHeight = energyCanvas.height - 24;
-        return 12 + graphHeight - ((e - minE) / (maxE - minE)) * graphHeight;
-      }
-
-      // Animation Loop
-      let lastTime = null;
-      function animate(t) {
-        if (!lastTime) lastTime = t;
-        const dt = Math.min((t - lastTime) / 1000, 0.035);
-        lastTime = t;
-
-        step(dt);
-        draw();
-        drawEnergyGraph();
-
-        requestAnimationFrame(animate);
-      }
-
-      requestAnimationFrame(animate);
-
-      // Add new JavaScript for sidebar toggle and tabs
-      document.addEventListener('DOMContentLoaded', function () {
-        // Sidebar toggle
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('settings-sidebar');
-
-        sidebarToggle.addEventListener('click', () => {
-          sidebar.classList.toggle('hidden');
-          const icon = sidebarToggle.querySelector('i');
-          if (sidebar.classList.contains('hidden')) {
-            icon.classList.remove('fa-chevron-left');
-            icon.classList.add('fa-chevron-right');
-          } else {
-            icon.classList.remove('fa-chevron-right');
-            icon.classList.add('fa-chevron-left');
-          }
-        });
-
-        // Tab switching
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabButtons.forEach((button) => {
-          button.addEventListener('click', () => {
-            // Remove active class from all buttons and contents
-            tabButtons.forEach((btn) => {
-              btn.classList.remove(
-                'active',
-                'text-indigo-800',
-                'font-semibold',
-                'bg-gradient-to-b',
-                'from-indigo-100/10',
-                'to-indigo-100/5',
-              );
-              btn.classList.add('text-gray-600', 'hover:text-gray-800');
-            });
-            tabContents.forEach((content) => {
-              content.classList.remove('active');
-              content.classList.add('hidden');
-            });
-
-            // Add active class to clicked button and corresponding content
-            button.classList.remove('text-gray-600', 'hover:text-gray-800');
-            button.classList.add(
-              'active',
-              'text-indigo-800',
-              'font-semibold',
-              'bg-gradient-to-b',
-              'from-indigo-100/10',
-              'to-indigo-100/5',
-            );
-
-            const tabId = button.dataset.tab + '-tab';
-            const activeContent = document.getElementById(tabId);
-            activeContent.classList.remove('hidden');
-            activeContent.classList.add('active');
-          });
-        });
-
-        // Handle window resize
-        function handleResize() {
-          const sidebar = document.getElementById('settings-sidebar');
-          const mainContent = document.getElementById('main-content');
-          const simulationContainer = document.getElementById(
-            'simulation-container',
-          );
-          const canvas = document.getElementById('sim-canvas');
-          const energyCanvas = document.getElementById('energy-canvas');
-
-          const isSidebarHidden = sidebar.classList.contains('hidden');
-          const containerWidth = isSidebarHidden
-            ? window.innerWidth
-            : window.innerWidth - 320;
-
-          // Calculate available height
-          const availableHeight = window.innerHeight - 32; // Account for padding
-          const simHeight = Math.min(availableHeight * 0.6, 500); // 60% of available height
-          const energyHeight = Math.min(availableHeight * 0.2, 150); // 20% of available height
-
-          // Update canvas sizes
-          canvas.width = Math.min(containerWidth - 32, 1200);
-          canvas.height = simHeight;
-          energyCanvas.width = Math.min(containerWidth - 32, 1200);
-          energyCanvas.height = energyHeight;
-
-          // Update container classes
-          mainContent.classList.toggle('expanded', isSidebarHidden);
-          simulationContainer.classList.toggle('expanded', isSidebarHidden);
-
-          // Update canvas containers
-          document
-            .querySelectorAll('.canvas-container')
-            .forEach((container) => {
-              container.classList.toggle('expanded', isSidebarHidden);
-            });
-        }
-
-        window.addEventListener('resize', handleResize);
-        handleResize();
-      });
-
-      function findSpringAt(x, y) {
-        for (let s of springs) {
-          let m1 = s.m1,
-            m2 = s.m2;
-          let dx = m2.x - m1.x;
-          let dy = m2.y - m1.y;
-          let dist = Math.sqrt(dx * dx + dy * dy);
-
-          // Calculate distance from point to line segment
-          let t = ((x - m1.x) * dx + (y - m1.y) * dy) / (dx * dx + dy * dy);
-          t = Math.max(0, Math.min(1, t));
-
-          let closestX = m1.x + t * dx;
-          let closestY = m1.y + t * dy;
-
-          let distance = Math.hypot(x - closestX, y - closestY);
-
-          if (distance < 10) {
-            // Click threshold for springs
-            return s;
-          }
-        }
-        return null;
-      }
-
-      // Add right-click handler for spring deletion
-      canvas.addEventListener('contextmenu', (e) => {
-        e.preventDefault(); // Prevent default context menu
-        const mouse = getMousePos(e);
-        const foundSpring = findSpringAt(mouse.x, mouse.y);
-
-        if (foundSpring) {
-          // Remove the spring
-          springs = springs.filter((s) => s !== foundSpring);
-        }
-      });
     </script>
   </body>
 </html>
